@@ -18,6 +18,7 @@ vcom -2008 -work work {./BREAK_LOGIC.vhd}
 vcom -2008 -work work {./CONFIG_TX.vhd}
 vcom -2008 -work work {./CLK_DIV.vhd}
 vlog -vlog01compat -work work {./CONV_REGS.v}
+vlog -vlog01compat -work work {./TOP.v}
 vlog -vlog01compat -work work {./TOP_tb.v}
 
 #simulate
@@ -25,16 +26,15 @@ vsim -novopt TOP_tb
 
 #probe signals
 add wave -radix unsigned *
-add wave -radix unsigned /TOP_tb/U_RX_DECODER/*
-add wave -radix unsigned /TOP_tb/U_RX_DESERIALIZER/*
-add wave -radix unsigned /TOP_tb/U_LINE_PERIOD_CALC/*
-add wave -radix unsigned /TOP_tb/U_DPRAM_WR_CTRL/*
-add wave -radix unsigned /TOP_tb/U_DPRAM/*
-add wave -radix unsigned /TOP_tb/U_DPRAM_RD_CTRL/*
-add wave -radix unsigned /TOP_tb/U_BREAK_LOGIC/*
-add wave -radix unsigned /TOP_tb/U_CONFIG_TX/*
-add wave -radix unsigned /TOP_tb/U_OUT_REG/*
-
+#add wave -radix unsigned /TOP_tb/U_RX_DECODER/*
+#add wave -radix unsigned /TOP_tb/U_RX_DESERIALIZER/*
+#add wave -radix unsigned /TOP_tb/U_LINE_PERIOD_CALC/*
+#add wave -radix unsigned /TOP_tb/U_DPRAM_WR_CTRL/*
+#add wave -radix unsigned /TOP_tb/U_DPRAM/*
+#add wave -radix unsigned /TOP_tb/U_DPRAM_RD_CTRL/*
+#add wave -radix unsigned /TOP_tb/U_BREAK_LOGIC/*
+#add wave -radix unsigned /TOP_tb/U_CONFIG_TX/*
+#add wave -radix unsigned /TOP_tb/U_OUT_REG/*
 
 view structure
 view signals
