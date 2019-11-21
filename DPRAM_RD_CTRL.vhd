@@ -43,7 +43,7 @@ entity DPRAM_RD_CTRL is
     RESET:                      in  std_logic;                                  -- async. Reset
     SCLOCK:                     in  std_logic;                                  -- system clock
     CLOCK:                      in  std_logic;                                  -- readout clock
-    NANEYE3A_NANEYE2B_N:        in  std_logic;                                  -- '0'=NANEYE2B, '1'=NANEYE3A
+    -- NANEYE3A_NANEYE2B_N:        in  std_logic;                                  -- '0'=NANEYE2B, '1'=NANEYE3A
     FRAMING_ERROR:              in  std_logic;                                  -- frame sync error (sync to sclk)
     FRAME_START:                in  std_logic;                                  -- start of frame (sync to sclk)
     LINE_FINISHED:              in  std_logic;                                  -- end of line (sync to sclk)

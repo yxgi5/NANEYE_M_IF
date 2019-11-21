@@ -62,7 +62,7 @@ entity RX_DECODER is
     FRAME_START:                out std_logic;                                  -- start of frame
     OUTPUT:                     out std_logic;                                  -- decoded data； --OUTPUT_DAT
     OUTPUT_EN:                  out std_logic;                                  -- output data valid
-    NANEYE3A_NANEYE2B_N:        out std_logic;                                  -- '0'=NANEYE2B, '1'=NANEYE3A
+    --NANEYE3A_NANEYE2B_N:        out std_logic;                                  -- '0'=NANEYE2B, '1'=NANEYE3A
     ERROR_OUT:                  out std_logic;                                  -- decoder error
     DEBUG_OUT:                  out std_logic_vector(31 downto 0));             -- debug outputs
 end entity RX_DECODER;
@@ -131,7 +131,7 @@ signal I_OUTPUT:                std_logic;
 signal I_OUTPUT_EN:             std_logic;
 signal I_HB_PERIOD_CNT_EN:      std_logic;
 signal I_HB_PERIOD_CNT:         std_logic_vector(C_HB_PERIOD_CNT_W-1 downto 0);
-signal I_NANEYE3A_NANEYE2B_N:   std_logic;
+--signal I_NANEYE3A_NANEYE2B_N:   std_logic;
 
 
 
@@ -857,22 +857,22 @@ end process HB_PERIOD_CNT_EVAL;
 -- The duration of the NANEYE2B's resynchronisation phase is 250 pixel periods
 -- The duration of the NANEYE3A's resynchronisation phase is > 508 pixel periods
 --------------------------------------------------------------------------------
-NANEYE3A_OR_NANEYE2B: process(RESET,CLOCK)
-begin
-  if (RESET = '1') then
-    I_NANEYE3A_NANEYE2B_N <= '0';
-  elsif (rising_edge(CLOCK)) then
-    if ((I_CAL_DONE = '1') and (I_DEC_PS = DEC_START) and (I_FB_PERIOD = '1') and (I_HB_PERIOD_CNT_EN = '1')) then
-      if (I_HB_PERIOD_CNT > C_RSYNC_PP_THR) then
-        I_NANEYE3A_NANEYE2B_N <= '1';     -- NANEYE3A
-      else
-        I_NANEYE3A_NANEYE2B_N <= '0';     -- NANEYE2B
-      end if;
-    else
-      I_NANEYE3A_NANEYE2B_N <= I_NANEYE3A_NANEYE2B_N;
-    end if;
-  end if;
-end process NANEYE3A_OR_NANEYE2B;
+--NANEYE3A_OR_NANEYE2B: process(RESET,CLOCK)
+--begin
+--  if (RESET = '1') then
+--    I_NANEYE3A_NANEYE2B_N <= '0';
+--  elsif (rising_edge(CLOCK)) then
+--    if ((I_CAL_DONE = '1') and (I_DEC_PS = DEC_START) and (I_FB_PERIOD = '1') and (I_HB_PERIOD_CNT_EN = '1')) then
+--      if (I_HB_PERIOD_CNT > C_RSYNC_PP_THR) then
+--        I_NANEYE3A_NANEYE2B_N <= '1';     -- NANEYE3A
+--      else
+--        I_NANEYE3A_NANEYE2B_N <= '0';     -- NANEYE2B
+--      end if;
+--    else
+--      I_NANEYE3A_NANEYE2B_N <= I_NANEYE3A_NANEYE2B_N;
+--    end if;
+--  end if;
+--end process NANEYE3A_OR_NANEYE2B;
 
 
 SYNC_START  <= '1' when (I_CAL_PS = CAL_SYNC_FOUND) else '0';
@@ -881,7 +881,7 @@ FRAME_START <= '1' when (I_CAL_PS = CAL_SYNC_FOUND) else '0';
 OUTPUT      <= I_OUTPUT;
 OUTPUT_EN   <= I_OUTPUT_EN;
 
-NANEYE3A_NANEYE2B_N <= I_NANEYE3A_NANEYE2B_N;
+--NANEYE3A_NANEYE2B_N <= I_NANEYE3A_NANEYE2B_N;
 
 ERROR_OUT   <= '1' when (I_DEC_PS = DEC_ERROR) else '0';
 

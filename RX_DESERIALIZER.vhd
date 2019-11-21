@@ -41,7 +41,7 @@ entity RX_DESERIALIZER is
   port (
     RESET:                      in  std_logic;                                  -- async. Reset
     CLOCK:                      in  std_logic;                                  -- system clock
-    NANEYE3A_NANEYE2B_N:        in  std_logic;                                  -- '0'=NANEYE2B, '1'=NANEYE3A
+    -- NANEYE3A_NANEYE2B_N:        in  std_logic;                                  -- '0'=NANEYE2B, '1'=NANEYE3A
     FRAME_START:                in  std_logic;                                  -- frame start pulse
     SER_INPUT:                  in  std_logic;                                  -- serial input data
     SER_INPUT_EN:               in  std_logic;                                  -- input data valid
@@ -115,21 +115,21 @@ begin
         if (FRAME_START = '1') then
           I_PRESENT_STATE <= FR_START;
         else
-          if (NANEYE3A_NANEYE2B_N = '0') then         -- NanEye2B
-            if (I_ROW_CNT < C_ROWS-1) then
-              if (I_COL_CNT = C_COLUMNS-1) then
-                I_PRESENT_STATE <= LINE_SYNC;
-              else
-                I_PRESENT_STATE <= I_PRESENT_STATE;
-              end if;
-            else
-              if (I_COL_CNT = C_COLUMNS-2) then
-                I_PRESENT_STATE <= FRAME_END;
-              else
-                I_PRESENT_STATE <= I_PRESENT_STATE;
-              end if;
-            end if;
-          else                                        -- NanyEye3A
+          --if (NANEYE3A_NANEYE2B_N = '0') then         -- NanEye2B
+            --if (I_ROW_CNT < C_ROWS-1) then
+              --if (I_COL_CNT = C_COLUMNS-1) then
+                --I_PRESENT_STATE <= LINE_SYNC;
+              --else
+                --I_PRESENT_STATE <= I_PRESENT_STATE;
+              --end if;
+            --else
+              --if (I_COL_CNT = C_COLUMNS-2) then
+                --I_PRESENT_STATE <= FRAME_END;
+              --else
+                --I_PRESENT_STATE <= I_PRESENT_STATE;
+              --end if;
+            --end if;
+          --else                                        -- NanyEye3A
             if (I_COL_CNT = C_COLUMNS) then
               if (I_ROW_CNT = C_ROWS-1) then
                 I_PRESENT_STATE <= FRAME_END;
@@ -139,7 +139,7 @@ begin
             else
               I_PRESENT_STATE <= I_PRESENT_STATE;
             end if;
-          end if;
+          --end if;
         end if;
 --------------------------------------------------------------------------------
 -- LINE_SYNC: waiting for line sync

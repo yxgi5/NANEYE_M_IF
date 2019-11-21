@@ -42,12 +42,18 @@ wire    [15:0]  DEBUG_OUT2_tb;
 
 wire    [15:0]  LINE_PERIOD2_tb;
 
+wire                      MCLK_SPEED_tb;
+wire                      IDLE_MODE_tb;
+wire  [1:0]               MCLK_MODE_tb;
+wire  [4:0]               ROWS_DELAY_tb;
+
 //reg     addr_mem[0:80000000];
 reg     i;
 integer count;
 integer fp_r;
 //integer     j;
 integer     rand;
+
 
 RX_DECODER
 #(
@@ -66,7 +72,7 @@ RX_DECODER
     .FRAME_START                (FRAME_START_tb),
     .OUTPUT                     (OUTPUT_tb),
     .OUTPUT_EN                  (OUTPUT_EN_tb),
-    .NANEYE3A_NANEYE2B_N        (NANEYE3A_NANEYE2B_N_tb),
+    //.NANEYE3A_NANEYE2B_N        (NANEYE3A_NANEYE2B_N_tb),
     .ERROR_OUT                  (ERROR_OUT_tb),
     .DEBUG_OUT                  (DEBUG_OUT_tb)
 );
@@ -80,7 +86,7 @@ RX_DESERIALIZER
 (
     .RESET                      (RESET_tb),
     .CLOCK                      (CLOCK_tb),
-    .NANEYE3A_NANEYE2B_N        (NANEYE3A_NANEYE2B_N_tb),
+    //.NANEYE3A_NANEYE2B_N        (NANEYE3A_NANEYE2B_N_tb),
     .FRAME_START                (FRAME_START_tb),
     .SER_INPUT                  (OUTPUT_tb),
     .SER_INPUT_EN               (OUTPUT_EN_tb),
@@ -178,7 +184,7 @@ DPRAM_RD_CTRL
     .RESET                      (RESET_tb),
     .SCLOCK                     (CLOCK_tb),
     .CLOCK                      (UCLOCK_tb),
-    .NANEYE3A_NANEYE2B_N        (NANEYE3A_NANEYE2B_N_tb),
+    //.NANEYE3A_NANEYE2B_N        (NANEYE3A_NANEYE2B_N_tb),
     .FRAMING_ERROR              (1'b0),
     .FRAME_START                (FRAME_START_tb),
     .LINE_FINISHED              (LINE_END_tb),
@@ -247,16 +253,21 @@ CONFIG_TX
 
 CONV_REGS U_CONV_REGS
 (
-    .CLOCK                      (UCLOCK_tb),                                      // 48MHz system clock
-    .RESET                      (RESET_tb),                                      // reset active high
+    .CLOCK                      (UCLOCK_tb),                                        // 48MHz system clock
+    .RESET                      (RESET_tb),                                         // reset active high
 
-    .WE_A                       (1'b0),                                        //
-    .ADD_A                      (3'b000),                                      // 
-    .DAT_A                      (8'h00),                                      //
+    .WE_A                       (1'b0),                                             // 和i2c_slave模块连接
+    .ADD_A                      (3'b000),                                           // 和i2c_slave模块连接
+    .DAT_A                      (8'h00),                                            // 和i2c_slave模块连接
 
     .RE_B                       (rd_en),
-    .ADD_B                      (paddr[1:0]),                                      // 
-    .DAT_B                      (pdata)                                       //
+    .ADD_B                      (paddr[1:0]),                                       // 和config_tx2模块连接
+    .DAT_B                      (pdata),                                            // 和config_tx2模块连接
+    
+    .MCLK_SPEED                 (MCLK_SPEED_tb),                                    // 和rx_decoder模块等连接
+    .MCLK_MODE                  (MCLK_MODE_tb),                                     // 和rx_decoder模块等连接
+    .ROWS_DELAY                 (ROWS_DELAY_tb),                                    // 和rx_decoder模块等连接
+    .IDLE_MODE                  (IDLE_MODE_tb)                                      // 和rx_decoder模块等连接
 );
 
 
