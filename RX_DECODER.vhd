@@ -60,6 +60,8 @@ entity RX_DECODER is
     CONFIG_EN:                  out std_logic;                                  -- start of config phase
     SYNC_START:                 out std_logic;                                  -- start of synchronisation phase
     FRAME_START:                out std_logic;                                  -- start of frame
+    V_SYNC:                     out std_logic;                                  -- 
+    H_SYNC:                     out std_logic;                                  -- 
     OUTPUT:                     out std_logic;                                  -- decoded data； --OUTPUT_DAT
     OUTPUT_EN:                  out std_logic;                                  -- output data valid
     --NANEYE3A_NANEYE2B_N:        out std_logic;                                  -- '0'=NANEYE2B, '1'=NANEYE3A
@@ -132,8 +134,13 @@ signal I_OUTPUT_EN:             std_logic;
 signal I_HB_PERIOD_CNT_EN:      std_logic;
 signal I_HB_PERIOD_CNT:         std_logic_vector(C_HB_PERIOD_CNT_W-1 downto 0);
 --signal I_NANEYE3A_NANEYE2B_N:   std_logic;
-
-
+signal I_V_SYNC:                std_logic;
+signal I_DEC_START_STATUS:      std_logic;
+signal I_DEC_START_STATUS_1:    std_logic;
+signal I_DEC_START_END_P:       std_logic;
+signal I_H_SYNC_START_1:        std_logic;
+signal I_H_SYNC_START_P:        std_logic;
+signal I_H_SYNC:                std_logic;
 
 component IDDR
 	PORT
@@ -808,7 +815,6 @@ begin
   end if;
 end process OUTPUT_EN_EVAL;
 
-
 --------------------------------------------------------------------------------
 -- determine whether a NANEYE3A or NANEYE2B is connected by counting the
 -- number of half bit period pulses before the first full bit period is received
@@ -850,7 +856,6 @@ begin
   end if;
 end process HB_PERIOD_CNT_EVAL;
 
-
 --------------------------------------------------------------------------------
 -- The duration of the resynchronisation phase (after the serial configuration)
 -- is used to determine whether a NANEYE3A or NANEYE2B is connected.
@@ -875,11 +880,68 @@ end process HB_PERIOD_CNT_EVAL;
 --end process NANEYE3A_OR_NANEYE2B;
 
 
+
+V_SYNC_EVAL: process(RESET,CLOCK)
+begin
+  if (RESET = '1') then
+    I_V_SYNC <= '0';
+  elsif (rising_edge(CLOCK)) then
+    if (FRAME_START = '1') then
+      I_V_SYNC <= '1';
+    elsif ((I_HB_PERIOD_CNT_EN = '1') and (I_HB_PERIOD_CNT>= C_RSYNC_PER_CNT_END)) then
+      I_V_SYNC <= '0';
+    end if;
+  end if;
+end process V_SYNC_EVAL;
+
+H_SYNC_P_EVAL: process(RESET,CLOCK)
+begin
+  if (RESET = '1') then
+    I_H_SYNC_START_1 <= '0';
+  elsif (rising_edge(CLOCK)) then
+    I_H_SYNC_START_1 <= I_HB_PERIOD_CNT_EN;
+  end if;
+end process H_SYNC_P_EVAL;
+-- 下降沿出一个PULSE
+I_H_SYNC_START_P <= (not I_HB_PERIOD_CNT_EN and I_H_SYNC_START_1);
+
+I_DEC_START_EVAL: process(RESET,CLOCK)
+begin
+  if (RESET = '1') then
+    I_DEC_START_STATUS <= '0';
+    I_DEC_START_STATUS_1 <= '0';
+  elsif (rising_edge(CLOCK)) then
+    if (I_DEC_PS = DEC_START) then
+        I_DEC_START_STATUS <= '1';
+    else
+        I_DEC_START_STATUS <= '0';
+    end if;
+    I_DEC_START_STATUS_1 <= I_DEC_START_STATUS;
+  end if;
+end process I_DEC_START_EVAL;
+I_DEC_START_END_P <= (not I_DEC_START_STATUS and I_DEC_START_STATUS_1);
+
+H_SYNC_EVAL: process(RESET,CLOCK)
+begin
+  if (RESET = '1') then
+    I_H_SYNC <= '0';
+  elsif (rising_edge(CLOCK)) then
+    if ((I_DEC_START_END_P = '1') and (I_DEC_PS = DEC_SYNC) and (I_V_SYNC = '0')) then
+      I_H_SYNC <= '1';
+    elsif (RSYNC = '1') then
+      I_H_SYNC <= '0';
+    end if;
+  end if;
+end process H_SYNC_EVAL;
+
+
 SYNC_START  <= '1' when (I_CAL_PS = CAL_SYNC_FOUND) else '0';
 CONFIG_EN   <= '1' when (I_CAL_PS = WAIT_FOR_SENSOR_CFG) else '0';
 FRAME_START <= '1' when (I_CAL_PS = CAL_SYNC_FOUND) else '0';
 OUTPUT      <= I_OUTPUT;
 OUTPUT_EN   <= I_OUTPUT_EN;
+V_SYNC      <= I_V_SYNC;
+H_SYNC      <= I_H_SYNC;
 
 --NANEYE3A_NANEYE2B_N <= I_NANEYE3A_NANEYE2B_N;
 

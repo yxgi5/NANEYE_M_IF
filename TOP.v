@@ -6,7 +6,6 @@ module TOP #
     parameter   CONFIG_BIT_PERIOD_NS = 400,         // 2.5MHz
     parameter   A_WIDTH = 10,
     parameter   D_WIDTH = 10
-
 ) 
 (
     RESET,
@@ -206,7 +205,7 @@ DPRAM_RD_CTRL
     .CLOCK                      (SYS_CLOCK),
     .FRAMING_ERROR              (1'b0),
     .FRAME_START                (FRAME_START),
-    .LINE_FINISHED              (LINE_END),
+    .LINE_FINISHED              (LINE_FINISHED),
     .DPRAM_RD_PAGE              (DPRAM_RD_PAGE),
     .DPRAM_RD_ADDR              (DPRAM_RD_ADDR),
     .DPRAM_RDAT_VALID           (DPRAM_RDAT_VALID),

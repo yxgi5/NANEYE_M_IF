@@ -26,15 +26,15 @@ vsim -novopt TOP_tb
 
 #probe signals
 add wave -radix unsigned *
-#add wave -radix unsigned /TOP_tb/U_RX_DECODER/*
-#add wave -radix unsigned /TOP_tb/U_RX_DESERIALIZER/*
-#add wave -radix unsigned /TOP_tb/U_LINE_PERIOD_CALC/*
-#add wave -radix unsigned /TOP_tb/U_DPRAM_WR_CTRL/*
-#add wave -radix unsigned /TOP_tb/U_DPRAM/*
-#add wave -radix unsigned /TOP_tb/U_DPRAM_RD_CTRL/*
-#add wave -radix unsigned /TOP_tb/U_BREAK_LOGIC/*
-#add wave -radix unsigned /TOP_tb/U_CONFIG_TX/*
-#add wave -radix unsigned /TOP_tb/U_OUT_REG/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_RX_DECODER/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_RX_DESERIALIZER/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_LINE_PERIOD_CALC/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_DPRAM_WR_CTRL/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_DPRAM/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_DPRAM_RD_CTRL/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_BREAK_LOGIC/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_CONFIG_TX/*
+add wave -radix unsigned /TOP_tb/U_TOP/U_OUT_REG/*
 
 view structure
 view signals

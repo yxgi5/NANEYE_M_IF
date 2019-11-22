@@ -48,6 +48,7 @@ entity RX_DESERIALIZER is
     DEC_RSYNC:                  out std_logic;                                  -- resynchronize decoder
     PAR_OUTPUT:                 out std_logic_vector(11 downto 0);              -- parallel output data
     PAR_OUTPUT_EN:              out std_logic;                                  -- output data valid
+    PCLK:                       out std_logic;
     PIXEL_ERROR:                out std_logic;                                  -- start/stop bit error
     LINE_END:                   out std_logic;                                  -- signals end of one line
     LINE_PERIOD:                out std_logic_vector(15 downto 0);              -- line period in # of CLOCK cycles
@@ -78,7 +79,8 @@ signal I_OUTPUT_EN:             std_logic;
 signal I_LINE_END:              std_logic;
 signal I_INPUT_EN_CNT:          std_logic_vector(C_INPUT_EN_CNT_WIDTH-1 downto 0);
 signal I_FRAME_START_PULSE:     std_logic;
-
+signal I_PCLK:                  std_logic;
+signal I_PCLK_CNT:              std_logic_vector(3 downto 0);
 
 begin
 --------------------------------------------------------------------------------
@@ -377,9 +379,39 @@ begin
 end process LINE_END_EVAL;
 
 
+PCLK_EVAL: process(RESET,CLOCK)
+begin
+  if (RESET = '1') then
+    I_PCLK <= '0';
+  elsif (rising_edge(CLOCK)) then
+    if (I_OUTPUT_EN='1') then
+      I_PCLK <= '1';
+    elsif (I_PCLK_CNT = "0110") then
+      I_PCLK <= '0';
+    end if;
+  end if;
+end process PCLK_EVAL;
+
+PCLK_CNT_EVAL: process(RESET,CLOCK)
+begin
+  if (RESET = '1') then
+    I_PCLK_CNT <= (others => '0');
+  elsif (rising_edge(CLOCK)) then
+    if ((I_PCLK = '1') and (I_PCLK_CNT < "0110")) then
+      if (SER_INPUT_EN = '1') then
+        I_PCLK_CNT <= I_PCLK_CNT + "0001";
+      end if;
+    else
+        I_PCLK_CNT <= (others => '0');
+    end if;
+  end if;
+end process PCLK_CNT_EVAL;
+
+
 DEC_RSYNC      <= '1' when ((I_PRESENT_STATE = INC_ROW_CNT) or (I_PIXEL_ERROR = '1')) else '0';
 PAR_OUTPUT     <= I_OUTPUT;
 PAR_OUTPUT_EN  <= I_OUTPUT_EN;
+PCLK           <= I_PCLK;
 LINE_END       <= I_LINE_END;
 PIXEL_ERROR    <= I_PIXEL_ERROR;
 ERROR_OUT      <= '0';
