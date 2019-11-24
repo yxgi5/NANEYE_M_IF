@@ -182,16 +182,16 @@ wire    [7:0]                   paddr1;
 
 CONV_REGS U_CONV_REGS
 (
-    .CLOCK                      (SYS_CLOCK),                                        // 48MHz system clock
+    .CLOCK                      (SYS_CLOCK),                                     // 48MHz system clock
     .RESET                      (RESET),                                         // reset active high
 
-    .WE_A                       (wr_en),                                             // 和i2c_slave模块连接
-    .ADD_A                      (paddr1[2:0]),                                           // 和i2c_slave模块连接
-    .DAT_A                      (pdata1),                                            // 和i2c_slave模块连接
+    .WE_A                       (wr_en),                                         // 和i2c_slave模块连接
+    .ADD_A                      (paddr1[2:0]),                                   // 和i2c_slave模块连接
+    .DAT_A                      (pdata1),                                        // 和i2c_slave模块连接
 
     .RE_B                       (rd_en),
-    .ADD_B                      (paddr[1:0]),                                       // 和config_tx2模块连接
-    .DAT_B                      (pdata),                                            // 和config_tx2模块连接
+    .ADD_B                      (paddr[1:0]),                                    // 和config_tx2模块连接
+    .DAT_B                      (pdata),                                         // 和config_tx2模块连接
     
     .MCLK_SPEED                 (MCLK_SPEED),                                    // 和rx_decoder模块等连接
     .MCLK_MODE                  (MCLK_MODE),                                     // 和rx_decoder模块等连接
@@ -203,7 +203,7 @@ I2C_SLAVE U_I2C_SLAVE
 (      
     .CLOCK                      (SYS_CLOCK),
     .RESET                      (RESET),
-	.SCL                        (I2C_SCL),
+	.SCL                        (I2C_SCL),      // 100kHz for i2c
 	.SDA                        (I2C_SDA),
     .WR_EN                      (wr_en),
     .ADD_OUT                    (paddr1[2:0]), 
