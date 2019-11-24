@@ -34,7 +34,7 @@ input                       SCL;
 inout                       SDA;
 
 inout                       RD_EN;
-input   [1:0]               ADD_IN;
+input   [2:0]               ADD_IN;
 output  [15:0]              DAT_OUT;
 reg     [15:0]              DAT_OUT;
 
@@ -797,7 +797,14 @@ begin
     begin
         if (RD_EN)
         begin
-            DAT_OUT <= RAM[ADD_IN];
+            if (ADD_IN < 3'h4)
+            begin
+                DAT_OUT <= RAM[ADD_IN];
+            end
+            else
+            begin
+                DAT_OUT <= 16'h0000;
+            end
         end
     end
 end

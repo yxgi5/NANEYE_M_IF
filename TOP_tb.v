@@ -68,8 +68,8 @@ TOP U_TOP
     .H_SYNC                     (H_SYNC_tb),
     .V_SYNC                     (V_SYNC_tb),
 
-    //.I2C_SDA                    (I2C_SDA_tb),
-    //.I2C_SCL                    (I2C_SCL_tb),
+    .I2C_SDA                    (I2C_SDA_tb),
+    .I2C_SCL                    (I2C_SCL_tb),
 
     .MCLK_SPEED                 (MCLK_SPEED_tb),
     .IDLE_MODE                  (IDLE_MODE_tb),

@@ -153,7 +153,7 @@ BREAK_LOGIC U_BREAK_LOGIC
 );
 
 wire    [15:0]                  pdata;
-wire    [1:0]                   paddr;
+wire    [2:0]                   paddr;
 wire                            rd_en;
 
 CONFIG_TX
