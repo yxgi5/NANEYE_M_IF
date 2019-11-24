@@ -29,7 +29,7 @@ wire                        TX_CLK_tb;
 parameter   D_WIDTH = 10;
 
 wire  [D_WIDTH-1:0]       PAR_RAW_tb;
-//wire                      PCLK_tb;
+wire                      PCLK_tb;
 wire                      V_SYNC_tb;
 wire                      H_SYNC_tb;
 
@@ -64,7 +64,7 @@ TOP U_TOP
     .TX_DAT                     (TX_DAT_tb),
     .TX_CLK                     (TX_CLK_tb),
     .PAR_RAW                    (PAR_RAW_tb),
-    //.PCLK                       (PCLK_tb),
+    .PCLK                       (PCLK_tb),
     .H_SYNC                     (H_SYNC_tb),
     .V_SYNC                     (V_SYNC_tb),
 

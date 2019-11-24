@@ -46,12 +46,12 @@ entity RX_DESERIALIZER is
     SER_INPUT:                  in  std_logic;                                  -- serial input data
     SER_INPUT_EN:               in  std_logic;                                  -- input data valid
     DEC_RSYNC:                  out std_logic;                                  -- resynchronize decoder
-    PAR_OUTPUT:                 out std_logic_vector(11 downto 0);              -- parallel output data
+    PAR_OUTPUT:                 out std_logic_vector(9 downto 0);              -- parallel output data
     PAR_OUTPUT_EN:              out std_logic;                                  -- output data valid
     PCLK:                       out std_logic;
     PIXEL_ERROR:                out std_logic;                                  -- start/stop bit error
     LINE_END:                   out std_logic;                                  -- signals end of one line
-    LINE_PERIOD:                out std_logic_vector(15 downto 0);              -- line period in # of CLOCK cycles
+    --LINE_PERIOD:                out std_logic_vector(15 downto 0);              -- line period in # of CLOCK cycles
     ERROR_OUT:                  out std_logic;                                  -- start/stop error
     DEBUG_OUT:                  out std_logic_vector(15 downto 0));             -- debug outputs
 end entity RX_DESERIALIZER;
@@ -77,8 +77,8 @@ signal I_ROW_CNT:               std_logic_vector(8 downto 0);
 signal I_OUTPUT:                std_logic_vector(11 downto 0);
 signal I_OUTPUT_EN:             std_logic;
 signal I_LINE_END:              std_logic;
-signal I_INPUT_EN_CNT:          std_logic_vector(C_INPUT_EN_CNT_WIDTH-1 downto 0);
-signal I_FRAME_START_PULSE:     std_logic;
+--signal I_INPUT_EN_CNT:          std_logic_vector(C_INPUT_EN_CNT_WIDTH-1 downto 0);
+--signal I_FRAME_START_PULSE:     std_logic;
 signal I_PCLK:                  std_logic;
 signal I_PCLK_CNT:              std_logic_vector(3 downto 0);
 
@@ -409,7 +409,7 @@ end process PCLK_CNT_EVAL;
 
 
 DEC_RSYNC      <= '1' when ((I_PRESENT_STATE = INC_ROW_CNT) or (I_PIXEL_ERROR = '1')) else '0';
-PAR_OUTPUT     <= I_OUTPUT;
+PAR_OUTPUT     <= I_OUTPUT(10 downto 1);
 PAR_OUTPUT_EN  <= I_OUTPUT_EN;
 PCLK           <= not I_PCLK;
 LINE_END       <= I_LINE_END;

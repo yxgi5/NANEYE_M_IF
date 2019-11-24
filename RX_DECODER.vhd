@@ -94,7 +94,7 @@ type   T_DEC_STATES is (DEC_IDLE,DEC_START,DEC_SYNC,DEC_HALF_BIT,DEC_ERROR);
 -- reg [7:0] my_memory [0:255]; // 256深度的8位宽数组
 type   T_HISTOGRAM  is array (0 to C_HISTOGRAM_ENTRIES-1) of std_logic_vector(C_HISTOGRAM_ENTRY_W-1 downto 0); -- array[32][12]
 
-signal I_CLOCK_N:               std_logic;
+--signal I_CLOCK_N:               std_logic;
 --signal I_IDDR_Q0:               STD_LOGIC_VECTOR (0 DOWNTO 0);--std_logic;
 --signal I_IDDR_Q1:               STD_LOGIC_VECTOR (0 DOWNTO 0);--std_logic;
 signal I_IDDR_Q0:               std_logic;
@@ -104,14 +104,14 @@ signal I_LAST_IDDR_Q:           std_logic_vector(1 downto 0);
 signal I_ADD:                   std_logic_vector(C_BIT_LEN_W-1 downto 0);
 signal I_BIT_LEN:               std_logic_vector(C_BIT_LEN_W-1 downto 0);
 signal I_HISTOGRAM:             T_HISTOGRAM;
-signal I_HISTOGRAM_ENTRY:       std_logic_vector(C_HISTOGRAM_ENTRY_W-1 downto 0);
+--signal I_HISTOGRAM_ENTRY:       std_logic_vector(C_HISTOGRAM_ENTRY_W-1 downto 0);
 signal I_HISTOGRAM_CNT_EN:      std_logic_vector(C_HISTOGRAM_ENTRIES-1 downto 0);
 signal I_HISTOGRAM_ENTRY_MAX:   std_logic_vector(C_HISTOGRAM_ENTRIES-1 downto 0);
 signal I_HISTOGRAM_INDEX:       std_logic_vector(C_BIT_LEN_W-1 downto 0);
 signal I_BIT_LEN_MAX:           std_logic_vector(C_BIT_LEN_W-1 downto 0);
 signal I_BIT_LEN_MIN:           std_logic_vector(C_BIT_LEN_W-1 downto 0);
-signal I_BIT_LEN_DIFF2MIN:      std_logic_vector(C_BIT_LEN_W downto 0);
-signal I_BIT_LEN_DIFF2MAX:      std_logic_vector(C_BIT_LEN_W downto 0);
+--signal I_BIT_LEN_DIFF2MIN:      std_logic_vector(C_BIT_LEN_W downto 0);
+--signal I_BIT_LEN_DIFF2MAX:      std_logic_vector(C_BIT_LEN_W downto 0);
 signal I_BIT_LEN_DIFF2MIN_ABS:  std_logic_vector(C_BIT_LEN_W downto 0);
 signal I_BIT_LEN_DIFF2MAX_ABS:  std_logic_vector(C_BIT_LEN_W downto 0);
 signal I_BIT_TRANS:             std_logic;

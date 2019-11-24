@@ -20,11 +20,11 @@ module TOP #
     TX_DAT,
     TX_CLK,
     PAR_RAW,
-    //PCLK,
+    PCLK,
     H_SYNC,
     V_SYNC,
-    //I2C_SDA,
-    //I2C_SCL,
+    I2C_SDA,
+    I2C_SCL,
 
     MCLK_SPEED,
     IDLE_MODE,
@@ -47,11 +47,11 @@ output                      TX_DAT;
 output                      TX_CLK;
 
 output  [D_WIDTH-1:0]       PAR_RAW;
-//output                      PCLK;
+output                      PCLK;
 output                      V_SYNC;
 output                      H_SYNC;
-//inout                       I2C_SDA;
-//output                      I2C_SCL;    
+inout                       I2C_SDA;
+output                      I2C_SCL;    
 
 output                      MCLK_SPEED;
 output                      IDLE_MODE;
@@ -95,12 +95,13 @@ RX_DECODER
     .CONFIG_EN                  (CONFIG_EN),
     .SYNC_START                 (SYNC_START),
     .FRAME_START                (FRAME_START),
+    .V_SYNC                     (V_SYNC),
+    .H_SYNC                     (H_SYNC),
     .OUTPUT                     (DEC_OUTPUT),
     .OUTPUT_EN                  (DEC_OUTPUT_EN),
     .ERROR_OUT                  (ERROR_OUT),
     .DEBUG_OUT                  (DEBUG_OUT)
 );
-
 
 RX_DESERIALIZER
 #(
@@ -114,15 +115,15 @@ RX_DESERIALIZER
     .SER_INPUT                  (DEC_OUTPUT),
     .SER_INPUT_EN               (DEC_OUTPUT_EN),
     .DEC_RSYNC                  (RSYNC),
-    .PAR_OUTPUT                 (PAR_OUTPUT),
+    .PAR_OUTPUT                 (PAR_RAW),
     .PAR_OUTPUT_EN              (PAR_OUTPUT_EN),
+    .PCLK                       (PCLK),
     .PIXEL_ERROR                (PIXEL_ERROR),
     .LINE_END                   (LINE_END),
-    .LINE_PERIOD                (LINE_PERIOD),
+    //.LINE_PERIOD                (LINE_PERIOD),
     .ERROR_OUT                  (ERROR_OUT2),
     .DEBUG_OUT                  (DEBUG_OUT2)
 );
-
 
 LINE_PERIOD_CALC
 #(
@@ -139,90 +140,6 @@ LINE_PERIOD_CALC
     .PIXEL_ERROR                (PIXEL_ERROR),
     .LINE_END                   (LINE_END),
     .LINE_PERIOD                (LINE_PERIOD2)
-);
-
-
-parameter C_ADDR_W = A_WIDTH;
-
-wire    [C_ADDR_W-1:0]       DPRAM_WR_ADDR;
-wire    [C_ADDR_W-1:0]       DPRAM_RD_ADDR;
-wire                            DPRAM_WE;
-wire                            DPRAM_RD_PAGE;
-wire                            LINE_FINISHED;
-
-DPRAM_WR_CTRL 
-#(
-    .C_ADDR_W                   (C_ADDR_W)
-)U_DPRAM_WR_CTRL
-(
-    .RESET                      (RESET),
-    .CLOCK                      (SCLOCK),
-    .PULSE                      (PAR_OUTPUT_EN),
-    .PIXEL_ERROR                (PIXEL_ERROR),
-    .LINE_SYNC                  (LINE_END),
-    .FRAME_SYNC                 (FRAME_START),
-    .DPRAM_WR_ADDR              (DPRAM_WR_ADDR),
-    .DPRAM_WE                   (DPRAM_WE),
-    .DPRAM_RD_PAGE              (DPRAM_RD_PAGE),
-    .LINE_FINISHED              (LINE_FINISHED)
-);
-
-
-wire    [D_WIDTH-1:0]        DOA;
-wire    [D_WIDTH-1:0]        DOB;
-
-DPRAM
-#(
-    .A_WIDTH                    (A_WIDTH),
-    .D_WIDTH                    (D_WIDTH)
-)U_DPRAM
-(
-    .CLKA                       (SYS_CLOCK),
-    .CLKB                       (SCLOCK),
-    .ENA                        (1'b1),
-    .ENB                        (1'b1),
-    .WEA                        (1'b0),
-    .WEB                        (DPRAM_WE),
-    .ADDRA                      (DPRAM_RD_ADDR),
-    .ADDRB                      (DPRAM_WR_ADDR),
-    .DIA                        ({(D_WIDTH){1'bx}}),
-    .DIB                        (PAR_OUTPUT[10:1]),
-    .DOA                        (DOA),
-    .DOB                        (DOB)
-);
-
-wire                            DPRAM_RDAT_VALID;
-
-DPRAM_RD_CTRL
-#(
-    .C_ROWS                     (320),
-    .C_COLUMNS                  (320),
-    .C_ADDR_W                   (C_ADDR_W)
-)U_DPRAM_RD_CTRL
-(
-    .RESET                      (RESET),
-    .SCLOCK                     (SCLOCK),
-    .CLOCK                      (SYS_CLOCK),
-    .FRAMING_ERROR              (1'b0),
-    .FRAME_START                (FRAME_START),
-    .LINE_FINISHED              (LINE_FINISHED),
-    .DPRAM_RD_PAGE              (DPRAM_RD_PAGE),
-    .DPRAM_RD_ADDR              (DPRAM_RD_ADDR),
-    .DPRAM_RDAT_VALID           (DPRAM_RDAT_VALID),
-    .H_SYNC                     (H_SYNC),
-    .V_SYNC                     (V_SYNC)
-);
-
-OUT_REG
-#(
-    .D_WIDTH                    (D_WIDTH)
-)U_OUT_REG
-(
-    .RESET                      (RESET),
-    .CLOCK                      (SYS_CLOCK),
-    .RDAT_VALID                 (DPRAM_RDAT_VALID),
-    .PAR_INPUT                  (DOA),
-    .PAR_OUTPUT                 (PAR_RAW)
 );
 
 BREAK_LOGIC U_BREAK_LOGIC
@@ -259,12 +176,16 @@ CONFIG_TX
     .TX_OE                      (TX_OE_N)
 );
 
+wire                            wr_en;
+wire    [7:0]                   pdata1;
+wire    [7:0]                   paddr1;
+
 CONV_REGS U_CONV_REGS
 (
     .CLOCK                      (SYS_CLOCK),                                        // 48MHz system clock
     .RESET                      (RESET),                                         // reset active high
 
-    .WE_A                       (1'b0),                                             // 和i2c_slave模块连接
+    .WE_A                       (wr_en),                                             // 和i2c_slave模块连接
     .ADD_A                      (3'b000),                                           // 和i2c_slave模块连接
     .DAT_A                      (8'h00),                                            // 和i2c_slave模块连接
 
@@ -277,6 +198,18 @@ CONV_REGS U_CONV_REGS
     .ROWS_DELAY                 (ROWS_DELAY),                                    // 和rx_decoder模块等连接
     .IDLE_MODE                  (IDLE_MODE)                                      // 和rx_decoder模块等连接
 );
+
+I2C_SLAVE U_I2C_SLAVE
+(      
+    .CLOCK                      (SYS_CLOCK),
+    .RESET                      (RESET),
+	.SCL                        (I2C_SCL),
+	.SDA                        (I2C_SDA),
+    .WR_EN                      (wr_en),
+    .ADD_OUT                    (paddr1[2:0]), 
+    .DAT_OUT                    (pdata1)
+);
+
 
 endmodule
 
