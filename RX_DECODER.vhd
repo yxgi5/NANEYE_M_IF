@@ -886,7 +886,7 @@ begin
   if (RESET = '1') then
     I_V_SYNC <= '0';
   elsif (rising_edge(CLOCK)) then
-    if (FRAME_START = '1') then
+    if ((I_HB_PERIOD_CNT > 0) and (I_HB_PERIOD_CNT < C_RSYNC_PER_CNT_END)) then
       I_V_SYNC <= '1';
     elsif ((I_HB_PERIOD_CNT_EN = '1') and (I_HB_PERIOD_CNT>= C_RSYNC_PER_CNT_END)) then
       I_V_SYNC <= '0';
