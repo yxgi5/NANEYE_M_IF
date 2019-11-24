@@ -411,7 +411,7 @@ end process PCLK_CNT_EVAL;
 DEC_RSYNC      <= '1' when ((I_PRESENT_STATE = INC_ROW_CNT) or (I_PIXEL_ERROR = '1')) else '0';
 PAR_OUTPUT     <= I_OUTPUT;
 PAR_OUTPUT_EN  <= I_OUTPUT_EN;
-PCLK           <= I_PCLK;
+PCLK           <= not I_PCLK;
 LINE_END       <= I_LINE_END;
 PIXEL_ERROR    <= I_PIXEL_ERROR;
 ERROR_OUT      <= '0';
