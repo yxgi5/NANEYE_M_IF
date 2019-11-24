@@ -218,7 +218,7 @@ begin
             I_START_P_SCK <= '1';
             I_ENABLE <= '1';
         elsif ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_PULSE_N = '1')) then
-	        if (I_REG_CNT = CFG_REGS-1) then
+	        if (I_REG_CNT = CFG_REGS) then
                   I_ENABLE <= '0';
 	        end if;
             I_TX_START <= '0';
@@ -250,7 +250,7 @@ begin
   elsif (rising_edge(CLOCK)) then
     -- if ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_TX_CLK = '1') and (I_PULSE = '1')) then
     if ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_PULSE_N = '1')) then
-      if (I_REG_CNT = CFG_REGS-1) then
+      if (I_REG_CNT = CFG_REGS) then
         I_REG_CNT <= (others => '0');
       else
         I_REG_CNT <= I_REG_CNT + 1;
@@ -276,7 +276,7 @@ begin
     if (I_TX_OE = '1') then
       -- if ((I_TX_CLK = '1') and (I_PULSE = '1')) then
       if (I_PULSE_P = '1') then
-        if ((I_REG_CNT = CFG_REGS-1) and (I_BIT_CNT = C_NO_CFG_BITS-1)) then 
+        if ((I_REG_CNT = CFG_REGS) and (I_BIT_CNT = C_NO_CFG_BITS-1)) then 
             I_BIT_CNT <= 0;
         else
             if (I_REG_CNT_ADD_F = '1') then
@@ -318,8 +318,11 @@ begin
       --if ((I_REG_CNT_ADD_F = '1') and (I_PULSE_P = '1')) then
       if (I_RD_EN_1 = '1') then
         --I_SREG <= INPUT;
-        I_SREG <= C_UPDATE_CODE & I_RD_ADDR & INPUT & '0';
-
+        if (I_REG_CNT = CFG_REGS) then
+            I_SREG <= "000000000000000101010101";
+        else
+            I_SREG <= C_UPDATE_CODE & I_RD_ADDR & INPUT & '0';
+        end if;
       -- if ((I_PULSE = '1') and (I_TX_CLK = '1')) then
       elsif ((I_SHIFT_EN = '1') and (I_PULSE_N = '1')) then
         I_SREG(C_NO_CFG_BITS-1 downto 1) <= I_SREG(C_NO_CFG_BITS-2 downto 0);
@@ -352,7 +355,7 @@ begin
         if ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_PULSE_N = '1')) then
             
             --I_RD_ADDR <= '0' & I_REG_CNT + "001";
-            if(I_REG_CNT = CFG_REGS-1) then
+            if(I_REG_CNT = CFG_REGS) then
                 I_RD_ADDR <= (others => '0');
             else
                 I_RD_EN <= '1';
@@ -399,7 +402,7 @@ begin
   elsif (rising_edge(CLOCK)) then
     I_TX_OE_1 <= I_TX_OE;
     -- if ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_TX_CLK = '1') and (I_PULSE = '1')) then
-    if ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_PULSE_N = '1') and (I_REG_CNT = CFG_REGS-1)) then
+    if ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_PULSE_N = '1') and (I_REG_CNT = CFG_REGS)) then
       I_TX_OE <= '0';
     -- elsif ((I_ENABLE = '1') and (I_PULSE = '1')) then
     elsif ((I_TX_START= '1') and (I_PULSE_P = '1')) then
