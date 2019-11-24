@@ -186,8 +186,8 @@ CONV_REGS U_CONV_REGS
     .RESET                      (RESET),                                         // reset active high
 
     .WE_A                       (wr_en),                                             // 和i2c_slave模块连接
-    .ADD_A                      (3'b000),                                           // 和i2c_slave模块连接
-    .DAT_A                      (8'h00),                                            // 和i2c_slave模块连接
+    .ADD_A                      (paddr1[2:0]),                                           // 和i2c_slave模块连接
+    .DAT_A                      (pdata1),                                            // 和i2c_slave模块连接
 
     .RE_B                       (rd_en),
     .ADD_B                      (paddr[1:0]),                                       // 和config_tx2模块连接
