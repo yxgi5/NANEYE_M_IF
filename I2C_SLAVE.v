@@ -11,9 +11,14 @@ module I2C_SLAVE #
 	SCL,
 	SDA,
 
-    WR_EN,                                      //
-    ADD_OUT,                                    // 
-    DAT_OUT                                     //
+    RD_EN,                                      //
+    ADD_IN,                                     // 
+    DAT_OUT,                                    //
+
+    MCLK_SPEED,                                 //
+    MCLK_MODE,                                  //
+    ROWS_DELAY,                                 //
+    IDLE_MODE                                   //
 );
 
 //parameter                   S_IDLE      = 4'd0;
@@ -28,9 +33,15 @@ input                       RESET;
 input                       SCL;
 inout                       SDA;
 
-output                      WR_EN;
-output  [7:0]               ADD_OUT;
-output  [7:0]               DAT_OUT;
+inout                       RD_EN;
+input   [1:0]               ADD_IN;
+output  [15:0]              DAT_OUT;
+reg     [15:0]              DAT_OUT;
+
+output                      MCLK_SPEED;
+output                      IDLE_MODE;
+output  [1:0]               MCLK_MODE;
+output  [4:0]               ROWS_DELAY;
 
 reg                         I_SDA_ACK_OUT;
 wire                        I_SDA_IN;
@@ -711,56 +722,93 @@ begin
 end 
 endtask
 
-reg [7:0] myReg0;   
-reg [7:0] myReg1;  
-reg [7:0] myReg2;  
-reg [7:0] myReg3;  
-reg [7:0] myReg4;  
-reg [7:0] myReg5;  
-reg [7:0] myReg6;   
-reg [7:0] myReg7;   
+reg     [7:0]   ROReg0;   
+reg     [7:0]   ROReg1;  
+reg     [7:0]   ROReg2;  
+reg     [7:0]   ROReg3;  
+reg     [15:0]  RAM [0:3];
 
 always @(posedge CLOCK)
 begin
     if (RESET == 1'b1) 
     begin
-        myReg0  <=   8'h80; // WR, default
-        myReg1  <=   8'h95; // WR, default
-        myReg2  <=   8'h03; // WR, default
-        myReg3  <=   8'h1d; // WR, default
-        myReg4  <=   8'h10; // RO, default 0x10
-        myReg5  <=   8'h20; // RO, default 0x20
-        myReg6  <=   8'h30; // RO, default 0x30
-        myReg7  <=   8'h40; // RO, default 0x40
+        RAM[0]      <= 16'h8095; // 这里是初始值
+        RAM[1]      <= 16'h031d; // 这里是初始值
+        RAM[2]      <= 16'h0000; // 这里是初始值
+        RAM[3]      <= 16'h0000; // 这里是初始值
+        ROReg0      <=   8'h10; // RO, default 0x10
+        ROReg1      <=   8'h20; // RO, default 0x20
+        ROReg2      <=   8'h30; // RO, default 0x30
+        ROReg3      <=   8'h40; // RO, default 0x40
     end
     else
     begin
         if (I_RD_OP == 1'b1) // --- I2C Read
         begin
             case (I_REG_ADDR)
-            8'h00: I_RD_VAL <= myReg0;  
-            8'h01: I_RD_VAL <= myReg1;  
-            8'h02: I_RD_VAL <= myReg2;  
-            8'h03: I_RD_VAL <= myReg3;  
-            8'h04: I_RD_VAL <= myReg4;  
-            8'h05: I_RD_VAL <= myReg5;  
-            8'h06: I_RD_VAL <= myReg6;  
-            8'h07: I_RD_VAL <= myReg7;  
+            8'h00: I_RD_VAL <= RAM[0][15:8];  
+            8'h01: I_RD_VAL <= RAM[0][7:0];  
+            8'h02: I_RD_VAL <= RAM[1][15:8];  
+            8'h03: I_RD_VAL <= RAM[1][7:0];  
+            8'h04: I_RD_VAL <= RAM[2][15:8];  
+            8'h05: I_RD_VAL <= RAM[2][7:0];  
+            8'h06: I_RD_VAL <= RAM[3][15:8]; 
+            8'h07: I_RD_VAL <= RAM[3][7:0];  
+            8'h08: I_RD_VAL <= ROReg0;  
+            8'h09: I_RD_VAL <= ROReg1;  
+            8'h0a: I_RD_VAL <= ROReg2;  
+            8'h0b: I_RD_VAL <= ROReg3; 
             default: I_RD_VAL <= 8'hFF; // i2c读非法内部地址, 返回0xff
             endcase
         end
         else if (I_WR_OP == 1'b1) // --- I2C Write
         begin
             case (I_REG_ADDR)
-            8'h00: myReg0 <= I_SDA_DATA;  //  high byte
-            8'h01: myReg1 <= I_SDA_DATA;  //  low byte
-            8'h02: myReg2 <= I_SDA_DATA;
-            8'h03: myReg3 <= I_SDA_DATA;
+            8'h00: RAM[0][15:8] <= I_SDA_DATA;  //  high byte
+            8'h01: RAM[0][7:0] <= I_SDA_DATA;   //  low byte
+            8'h02: RAM[1][15:8] <= I_SDA_DATA;
+            8'h03: RAM[1][7:0] <= I_SDA_DATA;
+            8'h04: RAM[2][15:8] <= I_SDA_DATA;
+            8'h05: RAM[2][7:0] <= I_SDA_DATA;
+            8'h06: RAM[3][15:8] <= I_SDA_DATA;
+            8'h07: RAM[3][7:0] <= I_SDA_DATA;
+            /*
+            if (I_REG_ADDR%2) // 如果是奇数地址
+            begin
+                RAM[I_REG_ADDR/2] <= {RAM[I_REG_ADDR/2][15:8], I_SDA_DATA}; // 低字节写入
+            end
+            else        // 如果是偶数数地址
+            begin
+                RAM[I_REG_ADDR/2] <= {I_SDA_DATA, RAM[I_REG_ADDR/2][7:0]}; // 高字节写入
+            end
+            */
             endcase
         end
     end
 end
 
+always @(posedge CLOCK)
+begin
+    if (RESET == 1'b1) 
+    begin
+        DAT_OUT <= 16'h0000;
+    end
+    else
+    begin
+        if (RD_EN)
+        begin
+            DAT_OUT <= RAM[ADD_IN];
+        end
+    end
+end
+
+assign MCLK_SPEED = RAM[1][0];
+assign IDLE_MODE = RAM[1][1];
+assign MCLK_MODE = RAM[1][7:6];
+assign ROWS_DELAY = RAM[1][15:11];
+
+
+/*
 // delay I_WR_OP for 1 tick
 reg                 I_WR_OP_1;
 always @(posedge CLOCK)
@@ -774,10 +822,10 @@ begin
         I_WR_OP_1 <= I_WR_OP; 
     end
 end
-
-assign WR_EN        = I_WR_OP_1;
-assign ADD_OUT      = I_REG_ADDR_1;
-assign DAT_OUT      = I_WR_VAL;
+*/
+//assign WR_EN        = I_WR_OP_1;
+//assign ADD_OUT      = I_REG_ADDR_1;
+//assign DAT_OUT      = I_WR_VAL;
 
 endmodule
 /*

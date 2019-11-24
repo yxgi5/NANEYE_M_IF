@@ -153,7 +153,7 @@ BREAK_LOGIC U_BREAK_LOGIC
 );
 
 wire    [15:0]                  pdata;
-wire    [2:0]                   paddr;
+wire    [1:0]                   paddr;
 wire                            rd_en;
 
 CONFIG_TX
@@ -176,38 +176,20 @@ CONFIG_TX
     .TX_OE                      (TX_OE_N)
 );
 
-wire                            wr_en;
-wire    [7:0]                   pdata1;
-wire    [7:0]                   paddr1;
-
-CONV_REGS U_CONV_REGS
-(
-    .CLOCK                      (SYS_CLOCK),                                     // 48MHz system clock
-    .RESET                      (RESET),                                         // reset active high
-
-    .WE_A                       (wr_en),                                         // 和i2c_slave模块连接
-    .ADD_A                      (paddr1[2:0]),                                   // 和i2c_slave模块连接
-    .DAT_A                      (pdata1),                                        // 和i2c_slave模块连接
-
-    .RE_B                       (rd_en),
-    .ADD_B                      (paddr[1:0]),                                    // 和config_tx2模块连接
-    .DAT_B                      (pdata),                                         // 和config_tx2模块连接
-    
-    .MCLK_SPEED                 (MCLK_SPEED),                                    // 和rx_decoder模块等连接
-    .MCLK_MODE                  (MCLK_MODE),                                     // 和rx_decoder模块等连接
-    .ROWS_DELAY                 (ROWS_DELAY),                                    // 和rx_decoder模块等连接
-    .IDLE_MODE                  (IDLE_MODE)                                      // 和rx_decoder模块等连接
-);
-
 I2C_SLAVE U_I2C_SLAVE
 (      
     .CLOCK                      (SYS_CLOCK),
     .RESET                      (RESET),
 	.SCL                        (I2C_SCL),      // 100kHz for i2c
 	.SDA                        (I2C_SDA),
-    .WR_EN                      (wr_en),
-    .ADD_OUT                    (paddr1[2:0]), 
-    .DAT_OUT                    (pdata1)
+    .RD_EN                      (rd_en),
+    .ADD_IN                     (paddr), 
+    .DAT_OUT                    (pdata),
+    
+    .MCLK_SPEED                 (MCLK_SPEED),                                    // 和rx_decoder模块等连接
+    .MCLK_MODE                  (MCLK_MODE),                                     // 和rx_decoder模块等连接
+    .ROWS_DELAY                 (ROWS_DELAY),                                    // 和rx_decoder模块等连接
+    .IDLE_MODE                  (IDLE_MODE)                                      // 和rx_decoder模块等连接
 );
 
 
