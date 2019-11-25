@@ -57,6 +57,7 @@ entity RX_DECODER is
   --INPUT:                      in  STD_LOGIC_VECTOR (0 DOWNTO 0);              --std_logic;-- manchester coded input; --SENSOR_DATA
     INPUT:                      in  std_logic;                                  -- manchester coded input; --SENSOR_DATA
     CONFIG_DONE:                in  std_logic;                                  -- end of config phase (async)
+    LINE_DES_END:               in  std_logic;
     CONFIG_EN:                  out std_logic;                                  -- start of config phase
     SYNC_START:                 out std_logic;                                  -- start of synchronisation phase
     FRAME_START:                out std_logic;                                  -- start of frame
@@ -465,8 +466,8 @@ end process SYNC_CFG_DONE;
 CAL_FSM: process(RESET,CLOCK)
 begin
   if (RESET = '1') then
-    I_CAL_PS <= CAL_IDLE;
-    I_CAL_LS <= CAL_IDLE;
+    I_CAL_PS <= WAIT_FOR_SENSOR_CFG;
+    I_CAL_LS <= WAIT_FOR_SENSOR_CFG;
   elsif (rising_edge(CLOCK)) then
     I_CAL_LS <= I_CAL_PS;
     if (ENABLE = '0') then
@@ -928,7 +929,7 @@ begin
   elsif (rising_edge(CLOCK)) then
     if ((I_DEC_START_END_P = '1') and (I_DEC_PS = DEC_SYNC) and (I_V_SYNC = '0')) then
       I_H_SYNC <= '1';
-    elsif (RSYNC = '1') then
+    elsif ((RSYNC = '1') or (LINE_DES_END = '1')) then
       I_H_SYNC <= '0';
     end if;
   end if;

@@ -51,6 +51,7 @@ entity RX_DESERIALIZER is
     PCLK:                       out std_logic;
     PIXEL_ERROR:                out std_logic;                                  -- start/stop bit error
     LINE_END:                   out std_logic;                                  -- signals end of one line
+    LINE_DES_END:               out std_logic;                                  -- signals end of one line
     --LINE_PERIOD:                out std_logic_vector(15 downto 0);              -- line period in # of CLOCK cycles
     ERROR_OUT:                  out std_logic;                                  -- start/stop error
     DEBUG_OUT:                  out std_logic_vector(15 downto 0));             -- debug outputs
@@ -81,6 +82,12 @@ signal I_LINE_END:              std_logic;
 --signal I_FRAME_START_PULSE:     std_logic;
 signal I_PCLK:                  std_logic;
 signal I_PCLK_CNT:              std_logic_vector(3 downto 0);
+signal I_OUTPUT_EN_PERIOD_CNT:  std_logic_vector(10 downto 0);
+signal I_OUTPUT_EN_PERIOD_CNT_1:std_logic_vector(10 downto 0);
+signal I_OUTPUT_EN_PERIOD_MAX:  std_logic_vector(10 downto 0);
+signal I_OUTPUT_EN_END:         std_logic;
+signal I_OUTPUT_EN_END_1:       std_logic;
+signal I_OUTPUT_EN_END_P:       std_logic;
 
 begin
 --------------------------------------------------------------------------------
@@ -388,6 +395,10 @@ begin
       I_PCLK <= '1';
     elsif (I_PCLK_CNT = "0110") then
       I_PCLK <= '0';
+    elsif ((I_COL_CNT = C_COLUMNS) and (I_ROW_CNT = C_ROWS-1)) then
+      if (I_OUTPUT_EN_PERIOD_CNT < (conv_integer(I_OUTPUT_EN_PERIOD_MAX)/2)) then
+        I_PCLK <= '0';
+      end if;
     end if;
   end if;
 end process PCLK_EVAL;
@@ -407,12 +418,48 @@ begin
   end if;
 end process PCLK_CNT_EVAL;
 
+OUTPUT_EN_PERIOD_CNT_EVAL: process(RESET,CLOCK)
+begin
+  if (RESET = '1') then
+    I_OUTPUT_EN_PERIOD_CNT <= (others => '0');
+    I_OUTPUT_EN_PERIOD_CNT_1 <= (others => '0');
+    I_OUTPUT_EN_PERIOD_MAX <= (others => '0');
+    I_OUTPUT_EN_END <= '0';
+    I_OUTPUT_EN_END_1 <= '0';
+  elsif (rising_edge(CLOCK)) then
+    if (I_ROW_CNT = C_ROWS-1) then
+      if (I_COL_CNT<C_COLUMNS-1) then
+        I_OUTPUT_EN_PERIOD_CNT <= (others => '0');
+        I_OUTPUT_EN_PERIOD_CNT_1 <= (others => '0');
+        I_OUTPUT_EN_PERIOD_MAX <= (others => '0');
+      elsif (I_COL_CNT = C_COLUMNS-1) then
+        I_OUTPUT_EN_PERIOD_CNT <= I_OUTPUT_EN_PERIOD_CNT + "0000000001";
+        I_OUTPUT_EN_PERIOD_CNT_1 <= I_OUTPUT_EN_PERIOD_CNT + "0000000001";
+      elsif (I_COL_CNT = C_COLUMNS) then
+        if (I_OUTPUT_EN_PERIOD_CNT > 0) then
+          if((I_OUTPUT_EN_PERIOD_CNT_1>I_OUTPUT_EN_PERIOD_CNT) and (I_OUTPUT_EN_PERIOD_MAX = "0000000000")) then
+            I_OUTPUT_EN_PERIOD_MAX <= I_OUTPUT_EN_PERIOD_CNT_1;
+          end if;
+          I_OUTPUT_EN_PERIOD_CNT <= I_OUTPUT_EN_PERIOD_CNT - "0000000001";
+        else
+          I_OUTPUT_EN_END <= '1';
+        end if;
+      end if;
+    else
+      I_OUTPUT_EN_END <= '0';
+    end if;
+    I_OUTPUT_EN_END_1 <= I_OUTPUT_EN_END;
+
+  end if;
+end process OUTPUT_EN_PERIOD_CNT_EVAL;
+I_OUTPUT_EN_END_P <= I_OUTPUT_EN_END and not I_OUTPUT_EN_END_1;
 
 DEC_RSYNC      <= '1' when ((I_PRESENT_STATE = INC_ROW_CNT) or (I_PIXEL_ERROR = '1')) else '0';
 PAR_OUTPUT     <= I_OUTPUT(10 downto 1);
 PAR_OUTPUT_EN  <= I_OUTPUT_EN;
 PCLK           <= not I_PCLK;
 LINE_END       <= I_LINE_END;
+LINE_DES_END   <= I_OUTPUT_EN_END_P;
 PIXEL_ERROR    <= I_PIXEL_ERROR;
 ERROR_OUT      <= '0';
 DEBUG_OUT <= (others => '0');

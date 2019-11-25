@@ -19,6 +19,7 @@ reg     ENABLE_tb;
 //reg     RSYNC_tb;
 reg     INPUT_tb;
 wire    INPUT_N_tb;
+wire    CONFIG_DONE_tb;
 
 wire    [1:0]               BREAK_N_tb;
 wire                        TX_OE_N_tb;
@@ -46,7 +47,7 @@ wire  [4:0]               ROWS_DELAY_tb;
 reg     i;
 integer count;
 integer fp_r;
-//integer     j;
+integer     j;
 integer     rand;
 
 
@@ -56,6 +57,7 @@ TOP U_TOP
     .SCLOCK                     (CLOCK_tb),
     .SYS_CLOCK                  (UCLOCK_tb),
     .RX_DATA                    (INPUT_tb),
+    .CONFIG_DONE_O              (CONFIG_DONE_tb),
     .ERROR_OUT                  (),
     .ERROR_OUT2                 (),
     //.DEBUG_OUT                 (),
@@ -81,7 +83,7 @@ TOP U_TOP
 
 initial
 begin
-//    j=0;
+    j=0;
     CLOCK_tb = 1;
     UCLOCK_tb = 1;
     RESET_tb = 1;
@@ -113,8 +115,21 @@ begin
     fp_r=$fopen("./data.dat","r");//以读的方式打开文件
 end
 
+always @ (posedge CLOCK_tb)
+begin
+    if (CONFIG_DONE_tb)
+    begin
+        j = 1;
+    end
+end
+
 initial
 begin
+    while(j==0)
+    begin
+        # 1;
+    end
+
     //INPUT_tb = addr_mem[0];
     $display("Begin READING-----READING-----READING-----READING");
     while(! $feof(fp_r))

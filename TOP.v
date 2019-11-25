@@ -12,6 +12,7 @@ module TOP #
     SCLOCK,
     SYS_CLOCK,
     RX_DATA,
+    CONFIG_DONE_O,
     ERROR_OUT,
     ERROR_OUT2,
     //DEBUG_OUT,
@@ -37,6 +38,7 @@ input                       SCLOCK;         // 400MHz sampling clock
 input                       SYS_CLOCK;      // 48MHz system clock.
 input                       RX_DATA;
 
+output                      CONFIG_DONE_O;
 output                      ERROR_OUT;
 output                      ERROR_OUT2;
 //output  [31:0]              DEBUG_OUT;
@@ -70,7 +72,8 @@ wire    [D_WIDTH+1:0]       PAR_OUTPUT;
 wire                        PAR_OUTPUT_EN;
 wire                        PIXEL_ERROR;
 wire                        LINE_END;
-wire    [15:0]              LINE_PERIOD;
+wire                        LINE_DES_END;
+//wire    [15:0]              LINE_PERIOD;
 wire    [31:0]              DEBUG_OUT;
 wire    [15:0]              DEBUG_OUT2;
 wire    [15:0]              LINE_PERIOD2;
@@ -92,6 +95,7 @@ RX_DECODER
     .RSYNC                      (RSYNC),
     .INPUT                      (RX_DATA),
     .CONFIG_DONE                (CONFIG_DONE),
+    .LINE_DES_END               (LINE_DES_END),
     .CONFIG_EN                  (CONFIG_EN),
     .SYNC_START                 (SYNC_START),
     .FRAME_START                (FRAME_START),
@@ -120,7 +124,7 @@ RX_DESERIALIZER
     .PCLK                       (PCLK),
     .PIXEL_ERROR                (PIXEL_ERROR),
     .LINE_END                   (LINE_END),
-    //.LINE_PERIOD                (LINE_PERIOD),
+    .LINE_DES_END                (LINE_DES_END),
     .ERROR_OUT                  (ERROR_OUT2),
     .DEBUG_OUT                  (DEBUG_OUT2)
 );
@@ -192,6 +196,7 @@ I2C_SLAVE U_I2C_SLAVE
     .IDLE_MODE                  (IDLE_MODE)                                      // 和rx_decoder模块等连接
 );
 
+assign CONFIG_DONE_O = CONFIG_DONE;
 
 endmodule
 
