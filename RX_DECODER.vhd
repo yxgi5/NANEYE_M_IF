@@ -48,7 +48,8 @@ use IEEE.STD_LOGIC_UNSIGNED.all;
 
 entity RX_DECODER is
   generic (
-    G_CLOCK_PERIOD_PS:          integer:= 5555);                                -- CLOCK period in ps (eg. 180MHz T=5555ns)
+    G_CLOCK_PERIOD_PS:          integer:= 5555;                                 -- CLOCK period in ps (eg. 180MHz T=5555ns)
+    IDLE_PERIOD_MAX_NS:         integer:= 25000000);                            -- wait if no input, then send gain
   port (
     RESET:                      in  std_logic;                                  -- async. Reset
     CLOCK:                      in  std_logic;                                  -- sampling clock; --SCLOCK
@@ -58,6 +59,7 @@ entity RX_DECODER is
     INPUT:                      in  std_logic;                                  -- manchester coded input; --SENSOR_DATA
     CONFIG_DONE:                in  std_logic;                                  -- end of config phase (async)
     LINE_DES_END:               in  std_logic;
+    TX_OE_N:                    in  std_logic;
     CONFIG_EN:                  out std_logic;                                  -- start of config phase
     SYNC_START:                 out std_logic;                                  -- start of synchronisation phase
     FRAME_START:                out std_logic;                                  -- start of frame
@@ -83,6 +85,10 @@ constant C_CAL_CNT_FR_END:      std_logic_vector(C_CAL_CNT_W-1 downto 0):=conv_s
 constant C_CAL_CNT_SYNC:        std_logic_vector(C_CAL_CNT_W-1 downto 0):=conv_std_logic_vector(32,C_CAL_CNT_W);
 constant C_RSYNC_PER_CNT_END:   std_logic_vector(C_HB_PERIOD_CNT_W-1 downto 0):=(others => '1');
 constant C_RSYNC_PP_THR:        std_logic_vector(C_HB_PERIOD_CNT_W-1 downto 0):=conv_std_logic_vector(2*350*12,C_HB_PERIOD_CNT_W);
+
+-- constant C_WAIT_PERIOD_MAX:     integer:= IDLE_PERIOD_MAX_NS*1000/CLOCK_PERIOD_PS;
+constant C_WAIT_PERIOD_MAX:     integer:= (IDLE_PERIOD_MAX_NS/G_CLOCK_PERIOD_PS)*1000;
+-- constant C_WAIT_PERIOD_MAX:     std_logic_vector(31 downto 0):=conv_std_logic_vector((IDLE_PERIOD_MAX_NS/CLOCK_PERIOD_PS)*1000,32); 
 
 -- 这里就是枚举类型
 type   T_CAL_STATES is (CAL_IDLE,CAL_FIND_FS,CAL_FIND_SYNC,WAIT_FOR_SENSOR_CFG,CAL_SYNC_FOUND,CAL_MEASURE,CAL_SEARCH_MIN,
@@ -142,6 +148,13 @@ signal I_DEC_START_END_P:       std_logic;
 signal I_H_SYNC_START_1:        std_logic;
 signal I_H_SYNC_START_P:        std_logic;
 signal I_H_SYNC:                std_logic;
+signal I_CONFIG_EN:                std_logic;
+signal I_IDLE_WATI_TIMEOUT:     std_logic;
+signal I_IDLE_WATI_TIMEOUT_1:   std_logic;
+signal I_IDLE_WATI_TIMEOUT_P:     std_logic;
+signal I_IDLE_WATI_TIMEOUT_CNT: std_logic_vector(32 downto 0);
+signal I_IDLE_WATI_TIMEOUT_P_DELAY: std_logic;
+signal I_IDLE_WATI_TIMEOUT_P_DELAY_CNT:   std_logic_vector(3 downto 0);
 
 component IDDR
 	PORT
@@ -188,6 +201,57 @@ PORT MAP (
 --    D                           => INPUT,                                       -- 1-bit data input
 --    R                           => RESET,                                       -- 1-bit reset input
 --    S                           => '0');                                        -- 1-bit set input
+
+
+
+--------------------------------------------------------------------------------
+-- handle timeout
+--------------------------------------------------------------------------------
+TIME_OUT: process(RESET,CLOCK)
+begin
+    if (RESET = '1') then
+        I_IDLE_WATI_TIMEOUT <= '0';
+        I_IDLE_WATI_TIMEOUT_1 <= '0';
+        I_IDLE_WATI_TIMEOUT_CNT <= (others => '0');
+    elsif (rising_edge(CLOCK)) then
+        I_IDLE_WATI_TIMEOUT_1 <= I_IDLE_WATI_TIMEOUT;
+        if(I_CAL_PS /= CAL_IDLE) then
+            I_IDLE_WATI_TIMEOUT_CNT <= (others => '0');
+        elsif (I_IDLE_WATI_TIMEOUT_CNT = C_WAIT_PERIOD_MAX) then
+            I_IDLE_WATI_TIMEOUT_CNT <= (others => '0');
+            I_IDLE_WATI_TIMEOUT <= '1';
+        elsif (TX_OE_N = '1') then
+            I_IDLE_WATI_TIMEOUT_CNT <= I_IDLE_WATI_TIMEOUT_CNT + 1;
+            I_IDLE_WATI_TIMEOUT <= '0';
+        else
+            I_IDLE_WATI_TIMEOUT_CNT <= (others => '0');
+            I_IDLE_WATI_TIMEOUT <= '0';
+        end if;
+    end if;
+end process TIME_OUT;
+I_IDLE_WATI_TIMEOUT_P <= (I_IDLE_WATI_TIMEOUT and not I_IDLE_WATI_TIMEOUT_1);
+
+IDLE_WATI_TIMEOUT_P_DELAY: process(RESET,CLOCK)
+begin
+    if (RESET = '1') then
+        I_IDLE_WATI_TIMEOUT_P_DELAY <= '0';
+        I_IDLE_WATI_TIMEOUT_P_DELAY_CNT <= "0000";
+    elsif (rising_edge(CLOCK)) then
+        if (I_IDLE_WATI_TIMEOUT_P) then
+            I_IDLE_WATI_TIMEOUT_P_DELAY <= '1';
+        elsif (I_IDLE_WATI_TIMEOUT_P_DELAY_CNT = "1010") then
+            I_IDLE_WATI_TIMEOUT_P_DELAY <= '0';
+        end if;
+
+        if (I_IDLE_WATI_TIMEOUT_P_DELAY = '1') then
+            if (I_IDLE_WATI_TIMEOUT_P_DELAY_CNT >= "1010") then
+                I_IDLE_WATI_TIMEOUT_P_DELAY_CNT <= "0000";
+            else
+                I_IDLE_WATI_TIMEOUT_P_DELAY_CNT <= I_IDLE_WATI_TIMEOUT_P_DELAY_CNT + "0001";
+            end if;
+        end if;
+    end if;
+end process IDLE_WATI_TIMEOUT_P_DELAY;
 
 
 --------------------------------------------------------------------------------
@@ -466,8 +530,8 @@ end process SYNC_CFG_DONE;
 CAL_FSM: process(RESET,CLOCK)
 begin
   if (RESET = '1') then
-    I_CAL_PS <= WAIT_FOR_SENSOR_CFG;
-    I_CAL_LS <= WAIT_FOR_SENSOR_CFG;
+    I_CAL_PS <= CAL_IDLE;
+    I_CAL_LS <= CAL_IDLE;
   elsif (rising_edge(CLOCK)) then
     I_CAL_LS <= I_CAL_PS;
     if (ENABLE = '0') then
@@ -937,7 +1001,8 @@ end process H_SYNC_EVAL;
 
 
 SYNC_START  <= '1' when (I_CAL_PS = CAL_SYNC_FOUND) else '0';
-CONFIG_EN   <= '1' when (I_CAL_PS = WAIT_FOR_SENSOR_CFG) else '0';
+I_CONFIG_EN   <= '1' when (I_CAL_PS = WAIT_FOR_SENSOR_CFG) else '0';
+CONFIG_EN   <= I_CONFIG_EN or I_IDLE_WATI_TIMEOUT_P_DELAY;
 FRAME_START <= '1' when (I_CAL_PS = CAL_SYNC_FOUND) else '0';
 OUTPUT      <= I_OUTPUT;
 OUTPUT_EN   <= I_OUTPUT_EN;

@@ -86,7 +86,8 @@ wire    [15:0]              LINE_PERIOD2;
 
 RX_DECODER
 #(
-    .G_CLOCK_PERIOD_PS          (SAMPLE_CLOCK_PERIOD_PS)      // sample clk 400MHz
+    .G_CLOCK_PERIOD_PS          (SAMPLE_CLOCK_PERIOD_PS),      // sample clk 400MHz
+    .IDLE_PERIOD_MAX_NS         (250000)
 )U_RX_DECODER
 (
     .RESET                      (RESET),
@@ -96,6 +97,7 @@ RX_DECODER
     .INPUT                      (RX_DATA),
     .CONFIG_DONE                (CONFIG_DONE),
     .LINE_DES_END               (LINE_DES_END),
+    .TX_OE_N                    (TX_OE_N),
     .CONFIG_EN                  (CONFIG_EN),
     .SYNC_START                 (SYNC_START),
     .FRAME_START                (FRAME_START),
