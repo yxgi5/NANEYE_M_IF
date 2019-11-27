@@ -53,7 +53,7 @@ output                      PCLK;
 output                      V_SYNC;
 output                      H_SYNC;
 inout                       I2C_SDA;
-output                      I2C_SCL;    
+input                       I2C_SCL;    
 
 output                      MCLK_SPEED;
 output                      IDLE_MODE;
