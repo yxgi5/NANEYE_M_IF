@@ -55,7 +55,7 @@ reg [DEBOUNCE_LEN-1:0]      I_SCL_PIPE;
 
 reg     [7:0]               I_CTRL_BYTE;
 reg     [7:0]               I_REG_ADDR;
-reg     [7:0]               I_REG_ADDR_1; // lotch I_REG_ADDR for output until next I_CTRL_BYTE update complete
+//reg     [7:0]               I_REG_ADDR_1; // lotch I_REG_ADDR for output until next I_CTRL_BYTE update complete
 reg     [7:0]               I_SDA_DATA; //  ‰»Îµƒ
 reg                         I_SDA_OUT_OE;
 
@@ -74,7 +74,7 @@ reg     [7:0]               I_SREG_SDA_OUT;
 
 reg                         I_WR_OP;
 reg                         I_RD_OP;
-reg     [7:0]               I_WR_VAL; // for output
+//reg     [7:0]               I_WR_VAL; // for output
 reg     [7:0]               I_RD_VAL;
 
 reg                         I_START_FF;
@@ -232,10 +232,10 @@ always @ (posedge CLOCK)
 begin
     if(RESET == 1'b1)
     begin
-        I_WR_VAL        <= 8'h00;
+        //I_WR_VAL        <= 8'h00;
         //I_RD_VAL        <= 8'h00;
         I_REG_ADDR      <= 8'h00;
-        I_REG_ADDR_1    <= 8'h00;
+        //I_REG_ADDR_1    <= 8'h00;
         I_CTRL_BYTE     <= 8'h00;
         I_SDA_DATA      <= 8'h00;
         I_SDA_OUT_OE    <= 1'b0;
@@ -325,7 +325,7 @@ begin
             ST_FSM_STATE    <= S_WRITE;
             sh8in_state     <= sh8in_begin;
             FF              <= 0;
-            I_REG_ADDR_1    <= I_REG_ADDR;   // for output
+            //I_REG_ADDR_1    <= I_REG_ADDR;   // for output
         end
     end
 
@@ -347,7 +347,7 @@ begin
         begin
             I_WR_OP         <= 1;
             I_RD_OP         <= 0;
-            I_WR_VAL        <= I_SDA_DATA;
+            //I_WR_VAL        <= I_SDA_DATA;
             
             if(I_WR_OP)
             begin
