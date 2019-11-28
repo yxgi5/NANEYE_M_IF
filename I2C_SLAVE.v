@@ -163,7 +163,7 @@ begin
         I_SCL_PIPE <= {DEBOUNCE_LEN{1'b1}};
         I_SCL_DEB <= 1'b1;
         I_SCL_DEB_1 <= 1'b1;
-        I_SREG_SDA_OUT <= 8'b0;
+        //I_SREG_SDA_OUT <= 8'b0;
     end
     else
     begin
@@ -233,7 +233,7 @@ begin
     if(RESET == 1'b1)
     begin
         I_WR_VAL        <= 8'h00;
-        I_RD_VAL        <= 8'h00;
+        //I_RD_VAL        <= 8'h00;
         I_REG_ADDR      <= 8'h00;
         I_REG_ADDR_1    <= 8'h00;
         I_CTRL_BYTE     <= 8'h00;
@@ -250,6 +250,7 @@ begin
         ackout_state    <= ack_begin;
         I_WR_OP         <= 0;
         I_RD_OP         <= 0;
+        I_SREG_SDA_OUT  <= 8'b0;
     end
     else
     casex(ST_FSM_STATE)
@@ -293,7 +294,7 @@ begin
             end
             else
             begin
-                I_RD_VAL        <= 8'b0;
+                //I_RD_VAL        <= 8'b0;
                 I_WR_OP         <= 0;
                 I_RD_OP         <= 1;
                 if(I_RD_OP)
