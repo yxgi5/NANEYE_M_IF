@@ -1,4 +1,4 @@
-
+`default_nettype none 
 module I2C_SLAVE # 
 ( 
 	parameter   I2C_SLAVE_ADDR  = 7'b1010000,   // i2c bus addr
@@ -32,55 +32,65 @@ input                       CLOCK;
 input                       RESET;
 input                       SCL;
 inout                       SDA;
+wire                        CLOCK  /* synthesis syn_keep = 1 */;
+wire                        RESET  /* synthesis syn_keep = 1 */;
+wire                        SCL  /* synthesis syn_keep = 1 */;
+wire                        SDA;
 
-inout                       RD_EN;
+input                       RD_EN;
+wire                        RD_EN /* synthesis syn_keep = 1 */;
 input   [2:0]               ADD_IN;
+wire    [2:0]               ADD_IN /* synthesis syn_keep = 1 */;
 output  [15:0]              DAT_OUT;
-reg     [15:0]              DAT_OUT;
+reg     [15:0]              DAT_OUT /* synthesis syn_keep = 1 */;
 
 output                      MCLK_SPEED;
 output                      IDLE_MODE;
 output  [1:0]               MCLK_MODE;
 output  [4:0]               ROWS_DELAY;
+wire                        MCLK_SPEED /* synthesis syn_keep = 1 */;
+wire                        IDLE_MODE /* synthesis syn_keep = 1 */;
+wire    [1:0]               MCLK_MODE /* synthesis syn_keep = 1 */;
+wire    [4:0]               ROWS_DELAY /* synthesis syn_keep = 1 */;
 
-reg                         I_SDA_ACK_OUT;
-wire                        I_SDA_IN;
+reg                         I_SDA_ACK_OUT /* synthesis syn_keep = 1 */;
+wire                        I_SDA_IN /* synthesis syn_keep = 1 */;
 
-reg                         I_SDA_DEB;
-reg                         I_SCL_DEB;
-reg                         I_SDA_DEB_1;
-reg                         I_SCL_DEB_1;
-reg [DEBOUNCE_LEN-1:0]      I_SDA_PIPE;
-reg [DEBOUNCE_LEN-1:0]      I_SCL_PIPE;
+reg                         I_SDA_DEB /* synthesis syn_keep = 1 */;
+reg                         I_SCL_DEB /* synthesis syn_keep = 1 */;
+reg                         I_SDA_DEB_1 /* synthesis syn_keep = 1 */;
+reg                         I_SCL_DEB_1 /* synthesis syn_keep = 1 */;
+reg [DEBOUNCE_LEN-1:0]      I_SDA_PIPE /* synthesis syn_keep = 1 */;
+reg [DEBOUNCE_LEN-1:0]      I_SCL_PIPE /* synthesis syn_keep = 1 */;
 
-reg     [7:0]               I_CTRL_BYTE;
-reg     [7:0]               I_REG_ADDR;
+reg     [7:0]               I_CTRL_BYTE /* synthesis syn_keep = 1 */;
+reg     [7:0]               I_REG_ADDR /* synthesis syn_keep = 1 */;
 //reg     [7:0]               I_REG_ADDR_1; // lotch I_REG_ADDR for output until next I_CTRL_BYTE update complete
-reg     [7:0]               I_SDA_DATA; // 输入的
-reg                         I_SDA_OUT_OE;
+reg     [7:0]               I_SDA_DATA /* synthesis syn_keep = 1 */; // 输入的
+reg                         I_SDA_OUT_OE /* synthesis syn_keep = 1 */;
 
 
-wire                        I_SCL_FALL; 
-wire                        I_SCL_RISE; 
-wire                        I_SCL_HIGH; 
-wire                        I_SCL_LOW; 
-wire                        I_SDA_FALL;
-wire                        I_SDA_RISE;
-wire                        I_SDA_HIGH;
-wire                        I_SDA_LOW;
+wire                        I_SCL_FALL /* synthesis syn_keep = 1 */; 
+wire                        I_SCL_RISE /* synthesis syn_keep = 1 */; 
+wire                        I_SCL_HIGH /* synthesis syn_keep = 1 */; 
+wire                        I_SCL_LOW /* synthesis syn_keep = 1 */; 
+wire                        I_SDA_FALL /* synthesis syn_keep = 1 */;
+wire                        I_SDA_RISE /* synthesis syn_keep = 1 */;
+wire                        I_SDA_HIGH /* synthesis syn_keep = 1 */;
+wire                        I_SDA_LOW /* synthesis syn_keep = 1 */;
 //reg     [7:0]               I_SREG_SDA_IN;
-reg     [7:0]               I_SREG_SDA_OUT;
+reg     [7:0]               I_SREG_SDA_OUT /* synthesis syn_keep = 1 */;
 //reg     [3:0]               I_BIT_CNT;
 
-reg                         I_WR_OP;
-reg                         I_RD_OP;
+reg                         I_WR_OP /* synthesis syn_keep = 1 */;
+reg                         I_RD_OP /* synthesis syn_keep = 1 */;
 //reg     [7:0]               I_WR_VAL; // for output
-reg     [7:0]               I_RD_VAL;
+reg     [7:0]               I_RD_VAL /* synthesis syn_keep = 1 */;
 
-reg                         I_START_FF;
-reg                         I_START_FF_1;
-wire                        I_START_EDGE;
-reg     [1:0]               I_START_EDGE_CNT;
+reg                         I_START_FF /* synthesis syn_keep = 1 */;
+reg                         I_START_FF_1 /* synthesis syn_keep = 1 */;
+wire                        I_START_EDGE /* synthesis syn_keep = 1 */;
+reg     [1:0]               I_START_EDGE_CNT /* synthesis syn_keep = 1 */;
 //enum bit {RD_OP,WR_OP}      I_WR_OP;//1bit宽，2值数据类型
 parameter HardWriteAddress = I2C_SLAVE_ADDR;
 parameter HardReadAddress  = I2C_SLAVE_ADDR | 1'b1;		
@@ -93,11 +103,11 @@ parameter    S_READ     =3'b011;
 parameter    S_WRITE    =3'b100;
 parameter    S_STOP     =3'b101;
 
-reg [2:0]   ST_FSM_STATE;
+reg [2:0]   ST_FSM_STATE /* synthesis syn_keep = 1 */;
 
-reg [3:0]   sh8out_state;
-reg [3:0]   sh8in_state;
-reg [1:0]   ackout_state;
+reg [3:0]   sh8out_state /* synthesis syn_keep = 1 */;
+reg [3:0]   sh8in_state /* synthesis syn_keep = 1 */;
+reg [1:0]   ackout_state /* synthesis syn_keep = 1 */;
 
 //-------------------------并行数据串行状态-----------------------------
 // shift8_out从状态机的状态定义
@@ -131,10 +141,11 @@ parameter   ack_bit    = 2'b01;
 parameter   ack_end    = 2'b10;
 
 
-reg     I_ACK_OE;
-reg     I_RD_OE;
-wire    I_SDA_SOURCE_1;
-wire    I_SDA_SOURCE_2;
+reg     I_ACK_OE /* synthesis syn_keep = 1 */;
+reg     I_RD_OE /* synthesis syn_keep = 1 */;
+wire    I_SDA_SOURCE_1 /* synthesis syn_keep = 1 */;
+wire    I_SDA_SOURCE_2 /* synthesis syn_keep = 1 */;
+wire    I_SDA_OUT /* synthesis syn_keep = 1 */;
 assign  I_SDA_SOURCE_1      = (I_ACK_OE)     ? I_SDA_ACK_OUT : 1'b0; // 考虑直接I_SDA_ACK_OUT 换成0
 assign  I_SDA_SOURCE_2      = (I_RD_OE)      ? I_SREG_SDA_OUT[7] : 1'b0;
 assign  I_SDA_OUT           = (I_SDA_SOURCE_1 | I_SDA_SOURCE_2);
@@ -225,8 +236,8 @@ assign I_START_EDGE = I_START_FF & ~I_START_FF_1;
 
 
 
-reg         FF;         //标志寄存器
-reg         RFF;         //标志寄存器
+reg         FF /* synthesis syn_keep = 1 */;         //标志寄存器
+reg         RFF /* synthesis syn_keep = 1 */;         //标志寄存器
 //-----------------------------主状态机程序----------------------------------
 always @ (posedge CLOCK)
 begin
@@ -239,17 +250,17 @@ begin
         I_CTRL_BYTE     <= 8'h00;
         I_SDA_DATA      <= 8'h00;
         I_SDA_OUT_OE    <= 1'b0;
-        I_ACK_OE        <= 0;
-        I_RD_OE         <= 0;
+        I_ACK_OE        <= 1'b0;
+        I_RD_OE         <= 1'b0;
         I_SDA_ACK_OUT   <= 1'b0;
         ST_FSM_STATE    <= S_IDLE;
-        FF              <= 0;
-        RFF             <= 1;
+        FF              <= 1'b0;
+        RFF             <= 1'b1;
         sh8out_state    <= sh8out_bit7;
         sh8in_state     <= sh8in_begin;
         ackout_state    <= ack_begin;
-        I_WR_OP         <= 0;
-        I_RD_OP         <= 0;
+        I_WR_OP         <= 1'b0;
+        I_RD_OP         <= 1'b0;
         I_SREG_SDA_OUT  <= 8'b0;
     end
     else
@@ -260,7 +271,7 @@ begin
         begin
             ST_FSM_STATE    <= S_READCTRL;
             sh8in_state     <= sh8in_begin;
-            FF              <= 0;
+            FF              <= 1'b0;
         end
         else
         begin
@@ -269,9 +280,187 @@ begin
     end
     S_READCTRL:
     begin
-        if(FF == 0) 
+        if(FF == 1'b0) 
         begin
-            shift8in(I_CTRL_BYTE);
+            case(sh8in_state)
+    
+            sh8in_begin:
+            begin
+	           	sh8in_state <= sh8in_bit7;
+            end
+            
+            sh8in_bit7:
+            begin
+                if(I_SCL_RISE)   
+                begin 
+                    I_CTRL_BYTE[7] <= I_SDA_DEB;	
+                    sh8in_state     <= sh8in_bit6;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit7;
+                end
+            end
+            
+            sh8in_bit6:
+            begin
+                if(I_SCL_RISE) 
+                begin
+                    I_CTRL_BYTE[6] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit5;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit6;
+                end
+            end
+
+            sh8in_bit5:
+            begin
+                if(I_SCL_RISE) 
+                begin	
+                    I_CTRL_BYTE[5] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit4;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit5;
+                end
+            end
+                         
+            sh8in_bit4:
+            begin
+                if(I_SCL_RISE) 
+                begin	
+                    I_CTRL_BYTE[4] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit3;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit4;
+                end
+            end
+                    
+            sh8in_bit3:
+            begin
+                if(I_SCL_RISE) 
+                begin 
+                    I_CTRL_BYTE[3] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit2;
+                end
+                else
+                begin 		
+                    sh8in_state <= sh8in_bit3; 
+                end    
+            end
+
+            sh8in_bit2:
+            begin
+                if(I_SCL_RISE) 
+                begin 
+                    I_CTRL_BYTE[2] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit1;
+                end
+                else
+                begin 		
+                    sh8in_state <= sh8in_bit2;  
+                end
+            end
+
+            sh8in_bit1:
+            begin
+                if(I_SCL_RISE) 
+                begin 
+                    I_CTRL_BYTE[1] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit0;
+                end
+                else
+                begin 		
+                    sh8in_state <= sh8in_bit1;  
+                end
+            end
+          
+            sh8in_bit0:
+            begin
+                if(I_SCL_RISE) 
+                begin	
+                    I_CTRL_BYTE[0] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_ack;
+                    ackout_state   <= ack_begin;
+                end
+                else
+                begin		
+                    sh8in_state <= sh8in_bit0;
+                end
+            end
+
+            sh8in_ack:
+            begin
+                /////////////////////////////////////////////////////////
+                case(ackout_state)
+                ack_begin:
+                begin
+                    if (I_SCL_FALL)
+                    begin
+                        I_SDA_ACK_OUT<=1'b0;
+                        I_ACK_OE     <=1'b1;
+                        I_SDA_OUT_OE <=1'b1;
+                        ackout_state <= ack_bit;
+                    end
+                end
+                ack_bit:
+                begin
+                    if (I_SCL_FALL)
+                    begin
+                        ackout_state <= ack_end;
+                    end
+                    else
+                    begin
+                        ackout_state <= ack_bit;
+                    end
+                end
+                ack_end:
+                begin
+                    I_SDA_ACK_OUT<=1'b0;
+                    I_ACK_OE     <=1'b0; 
+                    I_SDA_OUT_OE <=1'b0;
+                end
+                default:
+                begin
+                    ackout_state    <= ack_begin;
+                end
+
+                endcase
+                /////////////////////////////////////////////////////////
+                if(ackout_state == ack_end)
+                begin
+                    sh8in_state <= sh8in_end;
+                    ackout_state <= ack_begin;
+                end
+            end
+
+            sh8in_end:
+            begin
+                //if(I_SCL_RISE)
+                begin 
+                    //link_read   <= YES;
+                    FF          <=  1;                    
+                    sh8in_state <= sh8in_bit7; 
+                end 
+                //else
+                //begin 		
+                    //sh8in_state  <= sh8in_end;
+                //end
+            end
+
+            default:
+            begin
+		          //link_read    <= NO;
+		          //sh8in_state  <= sh8in_bit7;
+                sh8in_state  <= sh8in_begin;
+	        end
+            
+            endcase
         end
         else if(I_CTRL_BYTE==HardWriteAddress)
         begin
@@ -317,7 +506,185 @@ begin
     begin
         if(FF == 0) 
         begin
-            shift8in(I_REG_ADDR);
+            case(sh8in_state)
+    
+            sh8in_begin:
+            begin
+	           	sh8in_state <= sh8in_bit7;
+            end
+            
+            sh8in_bit7:
+            begin
+                if(I_SCL_RISE)   
+                begin 
+                    I_REG_ADDR[7] <= I_SDA_DEB;	
+                    sh8in_state     <= sh8in_bit6;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit7;
+                end
+            end
+            
+            sh8in_bit6:
+            begin
+                if(I_SCL_RISE) 
+                begin
+                    I_REG_ADDR[6] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit5;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit6;
+                end
+            end
+
+            sh8in_bit5:
+            begin
+                if(I_SCL_RISE) 
+                begin	
+                    I_REG_ADDR[5] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit4;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit5;
+                end
+            end
+                         
+            sh8in_bit4:
+            begin
+                if(I_SCL_RISE) 
+                begin	
+                    I_REG_ADDR[4] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit3;
+                end
+                else
+                begin
+                    sh8in_state <= sh8in_bit4;
+                end
+            end
+                    
+            sh8in_bit3:
+            begin
+                if(I_SCL_RISE) 
+                begin 
+                    I_REG_ADDR[3] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit2;
+                end
+                else
+                begin 		
+                    sh8in_state <= sh8in_bit3; 
+                end    
+            end
+
+            sh8in_bit2:
+            begin
+                if(I_SCL_RISE) 
+                begin 
+                    I_REG_ADDR[2] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit1;
+                end
+                else
+                begin 		
+                    sh8in_state <= sh8in_bit2;  
+                end
+            end
+
+            sh8in_bit1:
+            begin
+                if(I_SCL_RISE) 
+                begin 
+                    I_REG_ADDR[1] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_bit0;
+                end
+                else
+                begin 		
+                    sh8in_state <= sh8in_bit1;  
+                end
+            end
+          
+            sh8in_bit0:
+            begin
+                if(I_SCL_RISE) 
+                begin	
+                    I_REG_ADDR[0] <= I_SDA_DEB;
+                    sh8in_state     <= sh8in_ack;
+                    ackout_state   <= ack_begin;
+                end
+                else
+                begin		
+                    sh8in_state <= sh8in_bit0;
+                end
+            end
+
+            sh8in_ack:
+            begin
+                /////////////////////////////////////////////////////////
+                case(ackout_state)
+                ack_begin:
+                begin
+                    if (I_SCL_FALL)
+                    begin
+                        I_SDA_ACK_OUT<=1'b0;
+                        I_ACK_OE<=1'b1;
+                        I_SDA_OUT_OE<=1'b1;
+                        ackout_state <= ack_bit;
+                    end
+                end
+                ack_bit:
+                begin
+                    if (I_SCL_FALL)
+                    begin
+                        ackout_state <= ack_end;
+                    end
+                    else
+                    begin
+                        ackout_state <= ack_bit;
+                    end
+                end
+                ack_end:
+                begin
+                    I_SDA_ACK_OUT<=1'b0;
+                    I_ACK_OE<=1'b0; 
+                    I_SDA_OUT_OE<=1'b0;
+                end
+                default:
+                begin
+                    ackout_state    <= ack_begin;
+                end
+
+                endcase
+                /////////////////////////////////////////////////////////
+                if(ackout_state == ack_end)
+                begin
+                    sh8in_state <= sh8in_end;
+                    ackout_state <= ack_begin;
+                end
+            end
+
+            sh8in_end:
+            begin
+                //if(I_SCL_RISE)
+                begin 
+                    //link_read   <= YES;
+                    FF          <=  1;                    
+                    sh8in_state <= sh8in_bit7; 
+                end 
+                //else
+                //begin 		
+                    //sh8in_state  <= sh8in_end;
+                //end
+            end
+
+            default:
+            begin
+		          //link_read    <= NO;
+		          //sh8in_state  <= sh8in_bit7;
+                sh8in_state  <= sh8in_begin;
+	        end
+            
+            endcase        
         end
         else
         begin
@@ -340,7 +707,185 @@ begin
             end
             else
             begin
-                shift8in(I_SDA_DATA);
+                case(sh8in_state)
+                
+                sh8in_begin:
+                begin
+	               	sh8in_state <= sh8in_bit7;
+                end
+                
+                sh8in_bit7:
+                begin
+                    if(I_SCL_RISE)   
+                    begin 
+                        I_SDA_DATA[7] <= I_SDA_DEB;	
+                        sh8in_state     <= sh8in_bit6;
+                    end
+                    else
+                    begin
+                        sh8in_state <= sh8in_bit7;
+                    end
+                end
+                
+                sh8in_bit6:
+                begin
+                    if(I_SCL_RISE) 
+                    begin
+                        I_SDA_DATA[6] <= I_SDA_DEB;
+                        sh8in_state     <= sh8in_bit5;
+                    end
+                    else
+                    begin
+                        sh8in_state <= sh8in_bit6;
+                    end
+                end
+
+                sh8in_bit5:
+                begin
+                    if(I_SCL_RISE) 
+                    begin	
+                        I_SDA_DATA[5] <= I_SDA_DEB;
+                        sh8in_state     <= sh8in_bit4;
+                    end
+                    else
+                    begin
+                        sh8in_state <= sh8in_bit5;
+                    end
+                end
+                             
+                sh8in_bit4:
+                begin
+                    if(I_SCL_RISE) 
+                    begin	
+                        I_SDA_DATA[4] <= I_SDA_DEB;
+                        sh8in_state     <= sh8in_bit3;
+                    end
+                    else
+                    begin
+                        sh8in_state <= sh8in_bit4;
+                    end
+                end
+                        
+                sh8in_bit3:
+                begin
+                    if(I_SCL_RISE) 
+                    begin 
+                        I_SDA_DATA[3] <= I_SDA_DEB;
+                        sh8in_state     <= sh8in_bit2;
+                    end
+                    else
+                    begin 		
+                        sh8in_state <= sh8in_bit3; 
+                    end    
+                end
+
+                sh8in_bit2:
+                begin
+                    if(I_SCL_RISE) 
+                    begin 
+                        I_SDA_DATA[2] <= I_SDA_DEB;
+                        sh8in_state     <= sh8in_bit1;
+                    end
+                    else
+                    begin 		
+                        sh8in_state <= sh8in_bit2;  
+                    end
+                end
+
+                sh8in_bit1:
+                begin
+                    if(I_SCL_RISE) 
+                    begin 
+                        I_SDA_DATA[1] <= I_SDA_DEB;
+                        sh8in_state     <= sh8in_bit0;
+                    end
+                    else
+                    begin 		
+                        sh8in_state <= sh8in_bit1;  
+                    end
+                end
+              
+                sh8in_bit0:
+                begin
+                    if(I_SCL_RISE) 
+                    begin	
+                        I_SDA_DATA[0] <= I_SDA_DEB;
+                        sh8in_state     <= sh8in_ack;
+                        ackout_state   <= ack_begin;
+                    end
+                    else
+                    begin		
+                        sh8in_state <= sh8in_bit0;
+                    end
+                end
+
+                sh8in_ack:
+                begin
+                    /////////////////////////////////////////////////////////
+                    case(ackout_state)
+                    ack_begin:
+                    begin
+                        if (I_SCL_FALL)
+                        begin
+                            I_SDA_ACK_OUT<=1'b0;
+                            I_ACK_OE<=1'b1;
+                            I_SDA_OUT_OE<=1'b1;
+                            ackout_state <= ack_bit;
+                        end
+                    end
+                    ack_bit:
+                    begin
+                        if (I_SCL_FALL)
+                        begin
+                            ackout_state <= ack_end;
+                        end
+                        else
+                        begin
+                            ackout_state <= ack_bit;
+                        end
+                    end
+                    ack_end:
+                    begin
+                        I_SDA_ACK_OUT<=1'b0;
+                        I_ACK_OE<=1'b0; 
+                        I_SDA_OUT_OE<=1'b0;
+                    end
+                    default:
+                    begin
+                        ackout_state    <= ack_begin;
+                    end
+
+                    endcase
+                    /////////////////////////////////////////////////////////
+                    if(ackout_state == ack_end)
+                    begin
+                        sh8in_state <= sh8in_end;
+                        ackout_state <= ack_begin;
+                    end
+                end
+
+                sh8in_end:
+                begin
+                    //if(I_SCL_RISE)
+                    begin 
+                        //link_read   <= YES;
+                        FF          <=  1;                    
+                        sh8in_state <= sh8in_bit7; 
+                    end 
+                    //else
+                    //begin 		
+                        //sh8in_state  <= sh8in_end;
+                    //end
+                end
+
+                default:
+                begin
+		              //link_read    <= NO;
+		              //sh8in_state  <= sh8in_bit7;
+                    sh8in_state  <= sh8in_begin;
+	            end
+                
+                endcase
             end
         end
         else
@@ -399,195 +944,6 @@ begin
     endcase
 end
 
-//------------------------串行数据转换为并行数据任务----------------------------------
-task shift8in; 
-output [7:0] shift;
-begin 
-    case(sh8in_state)
-    
-    sh8in_begin:
-    begin
-	   	sh8in_state <= sh8in_bit7;
-    end
-    
-    sh8in_bit7:
-    begin
-        if(I_SCL_RISE)   
-        begin 
-            shift[7] <= I_SDA_DEB;	
-            sh8in_state     <= sh8in_bit6;
-        end
-        else
-        begin
-            sh8in_state <= sh8in_bit7;
-        end
-    end
-    
-    sh8in_bit6:
-    begin
-        if(I_SCL_RISE) 
-        begin
-            shift[6] <= I_SDA_DEB;
-            sh8in_state     <= sh8in_bit5;
-        end
-        else
-        begin
-            sh8in_state <= sh8in_bit6;
-        end
-    end
-
-    sh8in_bit5:
-    begin
-        if(I_SCL_RISE) 
-        begin	
-            shift[5] <= I_SDA_DEB;
-            sh8in_state     <= sh8in_bit4;
-        end
-        else
-        begin
-            sh8in_state <= sh8in_bit5;
-        end
-    end
-                 
-    sh8in_bit4:
-    begin
-        if(I_SCL_RISE) 
-        begin	
-            shift[4] <= I_SDA_DEB;
-            sh8in_state     <= sh8in_bit3;
-        end
-        else
-        begin
-            sh8in_state <= sh8in_bit4;
-        end
-    end
-            
-    sh8in_bit3:
-    begin
-        if(I_SCL_RISE) 
-        begin 
-            shift[3] <= I_SDA_DEB;
-            sh8in_state     <= sh8in_bit2;
-        end
-        else
-        begin 		
-            sh8in_state <= sh8in_bit3; 
-        end    
-    end
-
-    sh8in_bit2:
-    begin
-        if(I_SCL_RISE) 
-        begin 
-            shift[2] <= I_SDA_DEB;
-            sh8in_state     <= sh8in_bit1;
-        end
-        else
-        begin 		
-            sh8in_state <= sh8in_bit2;  
-        end
-    end
-
-    sh8in_bit1:
-    begin
-        if(I_SCL_RISE) 
-        begin 
-            shift[1] <= I_SDA_DEB;
-            sh8in_state     <= sh8in_bit0;
-        end
-        else
-        begin 		
-            sh8in_state <= sh8in_bit1;  
-        end
-    end
-  
-    sh8in_bit0:
-    begin
-        if(I_SCL_RISE) 
-        begin	
-            shift[0] <= I_SDA_DEB;
-            sh8in_state     <= sh8in_ack;
-            ackout_state   <= ack_begin;
-        end
-        else
-        begin		
-            sh8in_state <= sh8in_bit0;
-        end
-    end
-
-    sh8in_ack:
-    begin
-        ack_out;
-        if(ackout_state == ack_end)
-        begin
-            sh8in_state <= sh8in_end;
-            ackout_state <= ack_begin;
-        end
-    end
-
-    sh8in_end:
-    begin
-        //if(I_SCL_RISE)
-        begin 
-            //link_read   <= YES;
-            FF          <=  1;                    
-            sh8in_state <= sh8in_bit7; 
-        end 
-        //else
-        //begin 		
-            //sh8in_state  <= sh8in_end;
-        //end
-    end
-
-    default:
-    begin
-		  //link_read    <= NO;
-		  //sh8in_state  <= sh8in_bit7;
-        sh8in_state  <= sh8in_begin;
-	end
-    
-    endcase  
-end  
-endtask
-//------------------------------ ack任务 ---------------------------
-task ack_out;
-begin
-    case(ackout_state)
-    ack_begin:
-    begin
-        if (I_SCL_FALL)
-        begin
-            I_SDA_ACK_OUT<=1'b0;
-            I_ACK_OE<=1'b1;
-            I_SDA_OUT_OE<=1'b1;
-            ackout_state <= ack_bit;
-        end
-    end
-    ack_bit:
-    begin
-        if (I_SCL_FALL)
-        begin
-            ackout_state <= ack_end;
-        end
-        else
-        begin
-            ackout_state <= ack_bit;
-        end
-    end
-    ack_end:
-    begin
-        I_SDA_ACK_OUT<=1'b0;
-        I_ACK_OE<=1'b0; 
-        I_SDA_OUT_OE<=1'b0;
-    end
-    default:
-    begin
-        ackout_state    <= ack_begin;
-    end
-
-    endcase
-end
-endtask
 //------------------------------ 并行数据转换为串行数据任务 ---------------------------
 task shift8_out;
 begin
@@ -723,11 +1079,11 @@ begin
 end 
 endtask
 
-reg     [7:0]   ROReg0;   
-reg     [7:0]   ROReg1;  
-reg     [7:0]   ROReg2;  
-reg     [7:0]   ROReg3;  
-reg     [15:0]  RAM [0:3];
+reg     [7:0]   ROReg0 /* synthesis syn_keep = 1 */;   
+reg     [7:0]   ROReg1 /* synthesis syn_keep = 1 */;  
+reg     [7:0]   ROReg2 /* synthesis syn_keep = 1 */;  
+reg     [7:0]   ROReg3 /* synthesis syn_keep = 1 */;  
+reg     [15:0]  RAM [0:3] /* synthesis syn_preserve = 1 */;
 
 always @(posedge CLOCK)
 begin
