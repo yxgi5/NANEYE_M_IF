@@ -253,7 +253,7 @@ begin
         I_SREG_SDA_OUT  <= 8'b0;
     end
     else
-    casex(ST_FSM_STATE)
+    case(ST_FSM_STATE)
     S_IDLE:
     begin
         if(I_START_EDGE)
@@ -403,7 +403,7 @@ end
 task shift8in; 
 output [7:0] shift;
 begin 
-    casex(sh8in_state)
+    case(sh8in_state)
     
     sh8in_begin:
     begin
@@ -552,7 +552,7 @@ endtask
 //------------------------------ ack任务 ---------------------------
 task ack_out;
 begin
-    casex(ackout_state)
+    case(ackout_state)
     ack_begin:
     begin
         if (I_SCL_FALL)
@@ -591,7 +591,7 @@ endtask
 //------------------------------ 并行数据转换为串行数据任务 ---------------------------
 task shift8_out;
 begin
-    casex(sh8out_state)
+    case(sh8out_state)
     
     sh8out_bit7:
     begin
