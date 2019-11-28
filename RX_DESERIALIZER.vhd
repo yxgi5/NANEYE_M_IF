@@ -1,33 +1,3 @@
---------------------------------------------------------------------------------
--- AWAIBA GmbH
---------------------------------------------------------------------------------
--- MODUL NAME:  RX_DESERIALIZER
--- FILENAME:    rx_deserializer.vhd
--- AUTHOR:      Michael Heil - Ing. Büro für FPGA-Logic-Design
---              email:  michael.heil@fpga-logic-design.de
---
--- CREATED:     12.11.2009
---------------------------------------------------------------------------------
--- DESCRIPTION: deserializes decoded sensor data stream, detects frame- and
---              line-sync phases
---
---------------------------------------------------------------------------------
---
---------------------------------------------------------------------------------
--- REVISIONS:
--- DATE         VERSION    AUTHOR      DESCRIPTION
--- 12.11.2009   01         M. Heil     Initial version
--- 02.03.2010   02         M. Heil     Debug outputs added
--- 03.01.2011   03         M. Heil     corrections: skip first line, generate
---                                     resync signal for the decoder
--- 24.10.2011   04         M. Heil     Modifications for NanEye3A
--- 17.01.2012   05         M. Heil     FRAME_START always forces the FSM to IDLE
--- 06.03.2012   06         M. Heil     Line period measurement added
--- 05.11.2013   07         M. Heil     Line period measurement removed, check for
---                                     validity of first pixel added, reception
---                                     of first line enabled
---------------------------------------------------------------------------------
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_ARITH.all;

@@ -16,8 +16,8 @@ end entity CLK_DIV;
 architecture RTL of CLK_DIV is
 
 signal I_PULSE:                 std_logic;
-signal I_POS_CNT:               std_logic_vector(7 downto 0);
-signal I_NEG_CNT:               std_logic_vector(7 downto 0);
+signal I_POS_CNT:               std_logic_vector(15 downto 0);
+signal I_NEG_CNT:               std_logic_vector(15 downto 0);
 
 -- constant C_CAL:                 std_logic_vector(0 downto 0):=conv_std_logic_vector(DIV,1);  
 

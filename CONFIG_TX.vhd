@@ -1,27 +1,3 @@
---------------------------------------------------------------------------------
--- AWAIBA GmbH
---------------------------------------------------------------------------------
--- MODUL NAME:  CONFIG_TX
--- FILENAME:    config_tx.vhd
--- AUTHOR:      Michael Heil - Ing. Büro für FPGA-Logic-Design
---              email:  michael.heil@fpga-logic-design.de
---
--- CREATED:     18.02.2010
---------------------------------------------------------------------------------
--- DESCRIPTION: transmits configuration to the naneye2b sensor
---
---
---------------------------------------------------------------------------------
---
---------------------------------------------------------------------------------
--- REVISIONS:
--- DATE         VERSION    AUTHOR      DESCRIPTION
--- 19.02.2010   01         M. Heil     Initial version
--- 02.01.2011   02         M. Heil     START input asynchronous
--- 14.03.2012   03         M. Heil     Activation of TX_OE until the start of
---                                     the next frame
---------------------------------------------------------------------------------
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_ARITH.all;
@@ -182,7 +158,7 @@ begin
             elsif (I_PULSE_P = '1') then
                 I_START_P_SCK_CNT <= I_START_P_SCK_CNT + 1;
             end if;
-        elsif (I_START_P) then
+        elsif (I_START_P = '1') then
             I_START_P_SCK <= '1';
             I_ENABLE <= '1';
         elsif ((I_BIT_CNT = C_NO_CFG_BITS-1) and (I_PULSE_N = '1')) then
@@ -467,4 +443,3 @@ RD_EN <= I_RD_EN;
 
 
 end RTL;
-

@@ -68,7 +68,7 @@ wire                        FRAME_START;
 wire                        DEC_OUTPUT;
 wire                        DEC_OUTPUT_EN;
 wire                        RSYNC;
-wire    [D_WIDTH+1:0]       PAR_OUTPUT;
+//wire    [D_WIDTH+1:0]       PAR_OUTPUT;
 wire                        PAR_OUTPUT_EN;
 wire                        PIXEL_ERROR;
 wire                        LINE_END;
@@ -201,5 +201,4 @@ I2C_SLAVE U_I2C_SLAVE
 assign CONFIG_DONE_O = CONFIG_DONE;
 
 endmodule
-
 

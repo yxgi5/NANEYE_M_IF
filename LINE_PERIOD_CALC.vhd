@@ -1,23 +1,3 @@
---------------------------------------------------------------------------------
--- AWAIBA GmbH
---------------------------------------------------------------------------------
--- MODUL NAME:  LINE_PERIOD_CALC
--- FILENAME:    line_period_calc.vhd
--- AUTHOR:      Michael Heil - Ing. Büro für FPGA-Logic-Design
---              email:  michael.heil@fpga-logic-design.de
---
--- CREATED:     11.11.2009
---------------------------------------------------------------------------------
--- DESCRIPTION: measures the period of one line (valid pixels) in number of
---              clocks
---
---------------------------------------------------------------------------------
---
---------------------------------------------------------------------------------
--- REVISIONS:
--- DATE         VERSION    AUTHOR      DESCRIPTION
--- 23.10.2013   01         M. Heil     Initial version
---------------------------------------------------------------------------------
 
 -- library IEEE, UNISIM;
 library IEEE;
@@ -166,5 +146,4 @@ end process CNT_REG;
 LINE_PERIOD <= I_LINE_PERIOD_REG;
 
 end RTL;
-
 

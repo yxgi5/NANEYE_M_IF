@@ -1,41 +1,3 @@
---------------------------------------------------------------------------------
--- AWAIBA GmbH
---------------------------------------------------------------------------------
--- MODUL NAME:  RX_DECODER
--- FILENAME:    rx_decoder.vhd
--- AUTHOR:      Michael Heil - Ing. B锟絩o f锟絩 FPGA-Logic-Design
---              email:  michael.heil@fpga-logic-design.de
---
--- CREATED:     11.11.2009
---------------------------------------------------------------------------------
--- DESCRIPTION: decodes manchester-coded rx-stream
---
---
---------------------------------------------------------------------------------
---
---------------------------------------------------------------------------------
--- REVISIONS:
--- DATE         VERSION    AUTHOR      DESCRIPTION
--- 12.11.2009   01         M. Heil     Initial version
--- 02.03.2010   02         M. Heil     Debug outputs + INPUT_SYNC + CLEAR added
--- 01.01.2011   03         M. Heil     sampling at higher speed (ddr),
---                                     thresholds are dynamically adjusted
--- 02.01.2011   04         M. Heil     modification for spartan-3E (iddr),
---                                     inverter for input data removed
--- 30.10.2011   05         M. Heil     comparators for half/full bit decisions
---                                     work without fixed thresholds
--- 04.11.2011   06         M. Heil     Modifications for NanEye3A
--- 18.01.2012   07         M. Heil     FSM switches from CAL_DONE to CAL_FIND_FS
---                                     instead to CAL_IDLE, corrections and
---                                     simplifications
--- 05.03.2012   08         M. Heil     BIT_PERIOD output added
--- 03.11.2013   09         M. Heil     BIT_PERIOD output removed, generic
---                                     G_CLOCK_PERIOD_PS added, timing improved,
---                                     local clock inversion for sampling clock,
---                                     histogram used for determining min/max
---                                     pulse periods
---------------------------------------------------------------------------------
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.STD_LOGIC_ARITH.all;
@@ -237,7 +199,7 @@ begin
         I_IDLE_WATI_TIMEOUT_P_DELAY <= '0';
         I_IDLE_WATI_TIMEOUT_P_DELAY_CNT <= "0000";
     elsif (rising_edge(CLOCK)) then
-        if (I_IDLE_WATI_TIMEOUT_P) then
+        if (I_IDLE_WATI_TIMEOUT_P = '1') then
             I_IDLE_WATI_TIMEOUT_P_DELAY <= '1';
         elsif (I_IDLE_WATI_TIMEOUT_P_DELAY_CNT = "1010") then
             I_IDLE_WATI_TIMEOUT_P_DELAY <= '0';
