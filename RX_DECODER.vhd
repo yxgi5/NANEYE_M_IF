@@ -49,8 +49,8 @@ constant C_RSYNC_PER_CNT_END:   std_logic_vector(C_HB_PERIOD_CNT_W-1 downto 0):=
 constant C_RSYNC_PP_THR:        std_logic_vector(C_HB_PERIOD_CNT_W-1 downto 0):=conv_std_logic_vector(2*350*12,C_HB_PERIOD_CNT_W);
 
 -- constant C_WAIT_PERIOD_MAX:     integer:= IDLE_PERIOD_MAX_NS*1000/CLOCK_PERIOD_PS;
-constant C_WAIT_PERIOD_MAX:     integer:= (IDLE_PERIOD_MAX_NS/G_CLOCK_PERIOD_PS)*1000;
--- constant C_WAIT_PERIOD_MAX:     std_logic_vector(31 downto 0):=conv_std_logic_vector((IDLE_PERIOD_MAX_NS/CLOCK_PERIOD_PS)*1000,32); 
+-- constant C_WAIT_PERIOD_MAX:     integer:= (IDLE_PERIOD_MAX_NS/G_CLOCK_PERIOD_PS)*1000;
+constant C_WAIT_PERIOD_MAX:     std_logic_vector(31 downto 0):=conv_std_logic_vector((IDLE_PERIOD_MAX_NS/G_CLOCK_PERIOD_PS)*1000,32); 
 
 -- 这里就是枚举类型
 type   T_CAL_STATES is (CAL_IDLE,CAL_FIND_FS,CAL_FIND_SYNC,WAIT_FOR_SENSOR_CFG,CAL_SYNC_FOUND,CAL_MEASURE,CAL_SEARCH_MIN,
@@ -71,7 +71,9 @@ signal I_IDDR_Q1:               std_logic;
 signal I_IDDR_Q:                std_logic_vector(1 downto 0);
 signal I_LAST_IDDR_Q:           std_logic_vector(1 downto 0);
 signal I_ADD:                   std_logic_vector(C_BIT_LEN_W-1 downto 0);
+signal I_LAST_ADD:              std_logic_vector(C_BIT_LEN_W-1 downto 0);
 signal I_BIT_LEN:               std_logic_vector(C_BIT_LEN_W-1 downto 0);
+signal I_TEST_BIT_LEN:          std_logic;
 signal I_HISTOGRAM:             T_HISTOGRAM;
 --signal I_HISTOGRAM_ENTRY:       std_logic_vector(C_HISTOGRAM_ENTRY_W-1 downto 0);
 signal I_HISTOGRAM_CNT_EN:      std_logic_vector(C_HISTOGRAM_ENTRIES-1 downto 0);
@@ -179,7 +181,7 @@ begin
         I_IDLE_WATI_TIMEOUT_1 <= I_IDLE_WATI_TIMEOUT;
         if(I_CAL_PS /= CAL_IDLE) then
             I_IDLE_WATI_TIMEOUT_CNT <= (others => '0');
-        elsif (I_IDLE_WATI_TIMEOUT_CNT = C_WAIT_PERIOD_MAX) then
+        elsif (I_IDLE_WATI_TIMEOUT_CNT >= C_WAIT_PERIOD_MAX) then
             I_IDLE_WATI_TIMEOUT_CNT <= (others => '0');
             I_IDLE_WATI_TIMEOUT <= '1';
         elsif (TX_OE_N = '1') then
@@ -192,6 +194,13 @@ begin
     end if;
 end process TIME_OUT;
 I_IDLE_WATI_TIMEOUT_P <= (I_IDLE_WATI_TIMEOUT and not I_IDLE_WATI_TIMEOUT_1);
+--debug1 <= I_IDLE_WATI_TIMEOUT_P;
+--debug <= I_IDLE_WATI_TIMEOUT_CNT(1);
+--debug <= I_IDLE_WATI_TIMEOUT;
+--debug <= I_IDDR_Q0;
+--debug1 <= I_IDDR_Q1;
+--DEBUG_OUT(0) <= I_IDDR_Q0;
+--DEBUG_OUT(1) <= I_IDDR_Q1;
 
 IDLE_WATI_TIMEOUT_P_DELAY: process(RESET,CLOCK)
 begin
@@ -214,7 +223,7 @@ begin
         end if;
     end if;
 end process IDLE_WATI_TIMEOUT_P_DELAY;
-
+--debug <= I_IDLE_WATI_TIMEOUT_P_DELAY;
 
 --------------------------------------------------------------------------------
 -- 2 bit pipeline register for the input data
@@ -230,7 +239,7 @@ begin
     I_LAST_IDDR_Q <= I_IDDR_Q;
   end if;
 end process IDDR_Q_REG;
-
+--DEBUG_OUT(0) <= I_IDDR_Q(0);
 
 --------------------------------------------------------------------------------
 -- adder for measuring the duration of a bit
@@ -239,10 +248,12 @@ ADDER: process(RESET,CLOCK)
 begin
   if (RESET = '1') then
     I_ADD <= (others => '0');
+    I_LAST_ADD  <= (others => '0');
   elsif (rising_edge(CLOCK)) then
+    I_LAST_ADD  <= I_ADD;
     case I_IDDR_Q is
       when "00" =>
-        if (I_LAST_IDDR_Q(1) = '1') then
+        if (I_LAST_IDDR_Q = "11") then
           I_ADD <= conv_std_logic_vector(2,C_BIT_LEN_W);
         else
           I_ADD <= I_ADD + "10";
@@ -252,7 +263,7 @@ begin
       when "10" =>
         I_ADD <= conv_std_logic_vector(1,C_BIT_LEN_W);
       when "11" =>
-        if (I_LAST_IDDR_Q(1) = '0') then
+        if (I_LAST_IDDR_Q = "00") then
           I_ADD <= conv_std_logic_vector(2,C_BIT_LEN_W);
         else
           I_ADD <= I_ADD + "10";
@@ -271,61 +282,80 @@ BIT_LEN_REG: process(RESET,CLOCK)
 begin
   if (RESET = '1') then
     I_BIT_LEN <= (others => '0');
-  elsif (rising_edge(CLOCK)) then
-    case I_IDDR_Q is
-      when "00" =>
-        if (I_LAST_IDDR_Q(1) = '1') then
-          I_BIT_LEN <= I_ADD;
-        else
-          I_BIT_LEN <= I_BIT_LEN;
-        end if;
-      when "01" =>
-        I_BIT_LEN <= I_ADD + "01";
-      when "10" =>
-        I_BIT_LEN <= I_ADD + "01";
-      when "11" =>
-        if (I_LAST_IDDR_Q(1) = '0') then
-          I_BIT_LEN <= I_ADD;
-        else
-          I_BIT_LEN <= I_BIT_LEN;
-        end if;
-      when others =>
-        I_BIT_LEN <= I_BIT_LEN;
-    end case;
-  end if;
-end process BIT_LEN_REG;
-
-
---------------------------------------------------------------------------------
--- I_BIT_TRANS is activated every time a transition in the bit stream occurs
---------------------------------------------------------------------------------
-BIT_TRANS_EVAL: process(RESET,CLOCK)
-begin
-  if (RESET = '1') then
+    I_TEST_BIT_LEN <= '0';
     I_BIT_TRANS <= '0';
   elsif (rising_edge(CLOCK)) then
     case I_IDDR_Q is
       when "00" =>
-        if (I_LAST_IDDR_Q(1) = '1') then
+        if (I_LAST_IDDR_Q /= "00") then
+          I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
           I_BIT_TRANS <= '1';
+          if (I_LAST_IDDR_Q(1) /= I_LAST_IDDR_Q(0)) then
+            I_BIT_LEN <= I_LAST_ADD + "01";
+          else
+            I_BIT_LEN <= I_ADD;
+          end if;
         else
+          I_BIT_LEN <= I_BIT_LEN;
           I_BIT_TRANS <= '0';
         end if;
       when "01" =>
-        I_BIT_TRANS <= '1';
+        I_BIT_LEN <= I_BIT_LEN;
       when "10" =>
-        I_BIT_TRANS <= '1';
+        I_BIT_LEN <= I_BIT_LEN;
       when "11" =>
-        if (I_LAST_IDDR_Q(1) = '0') then
+        if (I_LAST_IDDR_Q /= "11") then
+          I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
           I_BIT_TRANS <= '1';
+          if (I_LAST_IDDR_Q(1) /= I_LAST_IDDR_Q(0)) then
+            I_BIT_LEN <= I_LAST_ADD + "01";
+          else
+            I_BIT_LEN <= I_ADD;
+          end if;
         else
+          I_BIT_LEN <= I_BIT_LEN;
           I_BIT_TRANS <= '0';
         end if;
       when others =>
+        I_BIT_LEN <= I_BIT_LEN;
         I_BIT_TRANS <= '0';
     end case;
   end if;
-end process BIT_TRANS_EVAL;
+end process BIT_LEN_REG;
+--DEBUG_OUT(6) <= I_OUTPUT;
+--DEBUG_OUT(4 downto 2) <= I_BIT_LEN(3 downto 1) ;
+--DEBUG_OUT(1) <= I_TEST_BIT_LEN;
+
+--------------------------------------------------------------------------------
+-- I_BIT_TRANS is activated every time a transition in the bit stream occurs
+--------------------------------------------------------------------------------
+--BIT_TRANS_EVAL: process(RESET,CLOCK)
+--begin
+--  if (RESET = '1') then
+--    I_BIT_TRANS <= '0';
+--  elsif (rising_edge(CLOCK)) then
+--    case I_IDDR_Q is
+--      when "00" =>
+--        if (I_LAST_IDDR_Q(1) = '1') then
+--          I_BIT_TRANS <= '1';
+--        else
+--          I_BIT_TRANS <= '0';
+--        end if;
+--      when "01" =>
+--        I_BIT_TRANS <= '1';
+--      when "10" =>
+--        I_BIT_TRANS <= '1';
+--      when "11" =>
+--        if (I_LAST_IDDR_Q(1) = '0') then
+--          I_BIT_TRANS <= '1';
+--        else
+--          I_BIT_TRANS <= '0';
+--        end if;
+--      when others =>
+--        I_BIT_TRANS <= '0';
+--    end case;
+--  end if;
+--end process BIT_TRANS_EVAL;
 
 
 --------------------------------------------------------------------------------
@@ -820,7 +850,13 @@ begin
     end if;
   end if;
 end process OUTPUT_EVAL;
-
+--DEBUG_OUT(6) <= I_OUTPUT;
+--DEBUG_OUT(5) <= I_BIT_TRANS;
+--DEBUG_OUT(5) <= I_OUTPUT_EN;
+--DEBUG_OUT(4 downto 3) <= (I_FB_PERIOD & I_HB_PERIOD);
+--DEBUG_OUT(2) <= I_FB_PERIOD;
+--DEBUG_OUT(1) <= I_OUTPUT_EN;
+--DEBUG_OUT(0) <= I_OUTPUT;
 
 --------------------------------------------------------------------------------
 -- Generating OUTPUT_EN
