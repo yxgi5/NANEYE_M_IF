@@ -288,11 +288,13 @@ begin
     case I_IDDR_Q is
       when "00" =>
         if (I_LAST_IDDR_Q /= "00") then
-          I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
-          I_BIT_TRANS <= '1';
           if (I_LAST_IDDR_Q(1) /= I_LAST_IDDR_Q(0)) then
+            I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
+            I_BIT_TRANS <= '1';
             I_BIT_LEN <= I_LAST_ADD + "01";
-          else
+          elsif (I_LAST_IDDR_Q = "11") then
+            I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
+            I_BIT_TRANS <= '1';
             I_BIT_LEN <= I_ADD;
           end if;
         else
@@ -305,11 +307,13 @@ begin
         I_BIT_LEN <= I_BIT_LEN;
       when "11" =>
         if (I_LAST_IDDR_Q /= "11") then
-          I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
-          I_BIT_TRANS <= '1';
           if (I_LAST_IDDR_Q(1) /= I_LAST_IDDR_Q(0)) then
+            I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
+            I_BIT_TRANS <= '1';
             I_BIT_LEN <= I_LAST_ADD + "01";
-          else
+          elsif (I_LAST_IDDR_Q = "00") then
+            I_TEST_BIT_LEN <= not I_TEST_BIT_LEN;
+            I_BIT_TRANS <= '1';
             I_BIT_LEN <= I_ADD;
           end if;
         else
